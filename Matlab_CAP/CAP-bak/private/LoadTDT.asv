@@ -1,0 +1,18 @@
+function loadTDT
+
+% LQ 01/05/05, change RP
+global root_dir Stimuli COMM
+
+COMM = struct('PA5_1',[],'PA5_2',[],'RX6',[],'asr1',0,'asr2',0,'RCO',[]);
+
+COMM.PA5_1 = actxcontrol('PA5.x',[0 0 1 1]);
+invoke(COMM.PA5_1,'ConnectPA5','USB',1);
+invoke(COMM.PA5_1,'SetAtten',120);
+
+COMM.RX6=actxcontrol('RPco.x',[0 0 1 1]);
+invoke(COMM.RX6,'ConnectRX6','USB',1);
+invoke(COMM.RX6,'ClearCOF');
+
+COMM.PA5_2 = actxcontrol('PA5.x',[0 0 1 1]);
+invoke(COMM.PA5_2,'ConnectPA5','USB',2);
+invoke(COMM.PA5_2,'SetAtten',120);

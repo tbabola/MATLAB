@@ -1,0 +1,68 @@
+function updateTDT
+% LQ 01/05/05 change RP2_1 and RP2_2 to RX6, load only one rco file to RX6,
+% also update for PA5_3 and PA5_4
+global root_dir Stimuli COMM
+
+if isnan(Stimuli.masker_freq_hz),
+    if Stimuli.freq_hz
+        COMM.RCO = 'tone.rco';
+    else
+        COMM.RCO = 'click.rco';
+    end
+else
+    COMM.RCO = 'tone_pair.rco';
+end
+
+% invoke(COMM.RX6,'LoadCOF',fullfile(root_dir,'cap','object',COMM.RCO));
+invoke(COMM.RX6,'LoadCOFsf',fullfile(root_dir,'cap','object',COMM.RCO),5);
+
+asr1 = 0;
+tryit = 0;
+
+while asr1 <= 0
+    asr1 = invoke(COMM.RX6,'GetSFreq');
+    tryit = tryit + 1;
+    if tryit == 10
+        errordlg('Couldn''t read sample rate of RX6','TDT Error!');
+        return
+    end
+end
+
+COMM.asr1 = asr1;
+Stimuli.SampRate = asr1/1000;
+% invoke(COMM.RP2_2,'LoadCOF',fullfile(root_dir,'cap','object','averager.rco'));
+% 
+% asr2 = 0;
+% tryit = 0;
+% 
+% while asr2 <= 0
+%     asr2 = invoke(COMM.RP2_2,'GetSFreq');
+%     tryit = tryit + 1;
+%     if tryit == 10
+%         errordlg('Couldn''t read sample rate of second RP2','TDT Error!');
+%         return
+%     end
+% end
+% 
+% COMM.asr2 = asr2;
+
+smaller_atten = min( Stimuli.masker_db_atten, Stimuli.db_atten );
+switch COMM.RCO
+    case {'tone_pair.rco'}
+        invoke(COMM.PA5_1, 'SetAtten', Stimuli.db_atten - smaller_atten);
+        invoke(COMM.PA5_2, 'SetAtten', Stimuli.masker_db_atten - smaller_atten);
+        invoke(COMM.PA5_3, 'SetAtten', smaller_atten);       
+    otherwise
+        invoke(COMM.PA5_1,'SetAtten',0);
+        invoke(COMM.PA5_3,'SetAtten',Stimuli.db_atten);
+end
+
+if Stimuli.freq_hz
+    invoke(COMM.RX6,'SetTagVal','freq',Stimuli.freq_hz);
+end
+if isfinite(Stimuli.masker_freq_hz)
+    invoke(COMM.RX6,'SetTagVal','masker_freq',Stimuli.masker_freq_hz);
+    invoke(COMM.RX6,'SetTagVal','MaskerDur',Stimuli.masker_duration);
+    invoke(COMM.RX6,'SetTagVal','masker_delay',Stimuli.masker_delay_ms+Stimuli.masker_duration);
+end
+%invoke(COMM.RX6,'Run');

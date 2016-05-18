@@ -1,0 +1,52 @@
+%Repair Analysis Instruction Block
+
+function instruct_error;	
+global Stimuli root_dir data_dir
+
+filename = fullfile(root_dir,'CAP_analysis','private','get_averaging_ins.m');
+fid = fopen(filename,'wt+');
+
+fprintf(fid,'%s\n\n','%Signal Averager Instruction Block');
+fprintf(fid,'%s%d%s\n','Stimuli = struct(''freq_hz'',',16000,', ...');
+fprintf(fid,'\t%s%d%s\n','''play_duration'',',5,', ...');
+fprintf(fid,'\t%d\n','''record_duration'','50,', ...');
+fprintf(fid,'\t%d\n','''SampRate'','50,', ...');
+fprintf(fid,'\t%d\n','''pulses_per_sec'','50,', ...');
+fprintf(fid,'\t%d\n','''rise_fall'','50,', ...');
+fprintf(fid,'\t%d\n','''naves'','50,', ...');
+fprintf(fid,'\t%d\n','''db_atten'','50,', ...');
+fprintf(fid,'\t%s%d%s\n','''reject'',',1,', ...');
+fprintf(fid,'\t%s%d%s\n','''masker_freq_hz'',',1,', ...');
+fprintf(fid,'\t%s%d%s\n','''masker_duration'',',1,', ...');
+fprintf(fid,'\t%s%d%s\n','''masker_delay_ms'',',1,', ...');
+fprintf(fid,'\t%s%d%s\n','''masker_db_atten'',',1,', ...');
+fprintf(fid,'\t%s%d%s\n','''amp_gain'',',1,', ...');
+fprintf(fid,'\t%s%\n','''automatic'',''no'');');
+
+fclose(fid);
+
+
+%Signal Averager Instruction Block
+
+Stimuli = struct('freq_hz',4000.000, ...
+	'play_duration',  5.000, ...
+	'record_duration',50.000, ...
+	'SampRate',195.313, ...
+	'pulses_per_sec',   0.500, ...
+	'rise_fall',   0.500, ...
+	'naves', 100.000, ...
+	'db_atten',  0.000, ...
+	'reject',   1.000, ...
+	'masker_freq_hz',     NaN, ...
+	'masker_duration', 100.000, ...
+	'masker_delay_ms',  10.000, ...
+	'masker_db_atten',   0.000, ...
+	'amp_gain',  10000.000, ...
+	'automatic',  'no');
+
+
+
+
+errstr = sprintf('%s\n%s','Corrupted instructions have been repaired.','Correct your parameters.');
+uiwait(errordlg(errstr,'Averager Error'));
+
