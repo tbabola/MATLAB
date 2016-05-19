@@ -99,13 +99,13 @@ function [pkData] = ICcompare2(LIC, RIC, master_pks,master_locs,pks,locs)
     windowforhit = 10;
     
     pkData = []; %col 1: LIC loc, 2: LIC pk, 3:RIC loc, 4:RIC pk, 5:delta, 6: peak type (1=matched, 2=LIC only, 3=RIC only) 7: which is bigger (1=LIC, 2=RIC)
-    locs = [locs(:) zeros(size(locs,1),1)];
-    for i=165:size(master_pks,1)
+    locs = [locs(:) zeros(size(locs,1))];
+    for i=1:size(master_pks,1)
         match = 0;
         j = 1;
         while match == 0
             if abs(master_locs(i)-locs(j,1)) <= windowforhit && locs(j,2) ~= 1
-                pkData(i, 1:6) = [master_locs(i) master_pks(i) locs(j,1) pks(j) abs(pks(j)-master_pks(i)) 1];
+                pkData(i, 1:6) = [master_locs(i) master_pks(i) locs(j,1) pks(j) abs(pks(j)-pks(i)) 1];
                 locs(j,2) = 1;
                 match = 1;
             else
@@ -114,7 +114,7 @@ function [pkData] = ICcompare2(LIC, RIC, master_pks,master_locs,pks,locs)
             
             if j > size(pks,1)
                 match = 1;
-                pkData(i, 1:6) = [master_locs(i) master_pks(i) master_locs(i) RIC(master_locs(i)) abs(master_pks(i)-RIC(master_locs(i))) 2];
+                pkData(i, 1:6) = [master_locs(i) master_pks(i) master_locs(i) RIC(master_locs(i)) abs(pks(i)-RIC(master_locs(i))) 2];
                 %pkData(i, 1:5) = [master_locs(i) master_pks(i) master_locs(i) 0 pks(i)];
             end
         end
@@ -297,17 +297,12 @@ function graphEvents(pkData)
     RIC_big = pkData(pkData(:,7)==2,:);
     
     figure;
-        %plot(-LIC_big(:,2),-LIC_big(:,1),'o','Color','red','MarkerFaceColor','red');
+        plot(-LIC_big(:,2),-LIC_big(:,1),'o','Color','red','MarkerFaceColor','red');
         hold on;
-        %plot(LIC_big(:,4),-LIC_big(:,3),'o','Color','black');
-        %plot(-RIC_big(:,2),-RIC_big(:,1),'o','Color','red');
-        %plot(RIC_big(:,4),-RIC_big(:,3),'o','Color','black','MarkerFaceColor','black');
-        %all points with lines
-        line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color','red');
-        line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color','black');
-        %only bigger events with lines
-        %line([-LIC_big(:,2)'; zeros(size(LIC_big,1),1)'],[-LIC_big(:,1)'; -LIC_big(:,1)'],'Color','red');
-        %line([zeros(size(RIC_big,1),1)'; RIC_big(:,4)'; ],[-RIC_big(:,3)'; -RIC_big(:,3)'],'Color','black');
+        line([-LIC_big(:,2)'; zeros(size(LIC_big,1),1)],[-LIC_big(:,1) -LIC_big(:,1)],'Color','red');
+        plot(LIC_big(:,4),-LIC_big(:,3),'o','Color','black');
+        plot(-RIC_big(:,2),-RIC_big(:,1),'o','Color','red');
+        plot(RIC_big(:,4),-RIC_big(:,3),'o','Color','black','MarkerFaceColor','black');
         
 end
 
