@@ -1,4 +1,4 @@
-%% batch load data (provide filename fn and correct directory name dname)
+ %% batch load data (provide filename fn and correct directory name dname)
 
 [fn dname] = uigetfile('Multiselect','On');
 
