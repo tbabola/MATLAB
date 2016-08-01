@@ -3,12 +3,10 @@
 [fn dname] = uigetfile('Multiselect','On');
 
 
-for i=1:size(fn,2)
-    if size(fn,2) > 1
+for i=1:size(fn,1)
+ 
         fname = [dname fn{i}];
-    else
-        fname = [dname fn];
-    end
+  
     %% load movie   
     X = loadTif(fname);
     [m,n,T] = size(X);
@@ -84,9 +82,9 @@ for i=1:size(fn,2)
     %% select region and show raw trace and fit
     %plot_small_region(t,F_rec,B_rec,F_rec2,imgs,m)
     %% play back normalized movies
-    mvo = X-reshape(permute(B_rec,[2 1]),m,n,T);
-    writeTif(single(mvo),[processed_dir 'PCA_baselinesubt.tif'],32);
-    clearvars mvo;
+    %mvo = X-reshape(permute(B_rec,[2 1]),m,n,T);
+    %writeTif(single(mvo),[processed_dir 'PCA_baselinesubt.tif'],32);
+    %clearvars mvo;
     mve = reshape(permute(F_rec,[2 1]),m,n,T);
     writeTif(single(mve),[processed_dir 'PCA.tif'],32);
     %mva = cat(1,normmat(mvo),normmat(mve));

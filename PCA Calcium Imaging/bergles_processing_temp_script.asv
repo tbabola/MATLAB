@@ -96,4 +96,4 @@ writeTif(single(mve),[processed_dir 'PCA.tif'],32);
 % imagesc(mva(:,:,i),[0.01 .95]); axis image; axis off;
 % pause(.001)
 % end
-cd o_dir
+

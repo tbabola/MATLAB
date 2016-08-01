@@ -41,27 +41,27 @@ function [LICinfo,RICinfo] = findICpeaks(ICsignal,filePath,analysisName)
         plot(time/10,bg);
         ylabel('Amplitude (AIU)')
         xlabel('Time (s)');
-    %savefig([filePath,'dfof_bg_',analysisName]);
+    savefig([filePath,'dfof_bg_',analysisName]);
     pkData = ICcompare2(LIC, RIC, pksLIC,locsLIC,pksRIC,locsRIC);
+    graphEvents(pkData,[filePath,'timevert_',analysisName]);
     assignin('base','pkdata',pkData);
     
-    [LtoRpks,LtoRlocs] = ICcompare(pksLIC,locsLIC,pksRIC,locsRIC);
-    LtoRpks = LtoRpks(all(~isnan(LtoRpks),2),:);
-    LtoRlocs = LtoRlocs(all(~isnan(LtoRpks),2),:);
-    totLpks = size(pksLIC,1);
-    totLcorrPks = size(LtoRpks,1);
-    disp(['LIC: ',num2str(size(pksLIC,1)),' peaks total, ',num2str(size(LtoRpks,1)),' corresponding RIC peaks.']);
+    %get stats about events
+    totLpks = size([pkData(pkData(:,6)==1); pkData(pkData(:,6)==2)],1);
+    totRpks = size([pkData(pkData(:,6)==1); pkData(pkData(:,6)==3)],1);
+    totMatchedPks = size(pkData(pkData(:,6)==1),1);
+    totPks = totLpks + totRpks - totMatchedPks;
+    Ldom = size(pkData(pkData(:,7)==1),1); % dominant LIC peaks
+    Rdom = size(pkData(pkData(:,7)==2),1) %dominant RIC peaks
+    meanR = mean(pkData(:,4));
+    meanL = mean(pkData(:,2));
     
-    [RtoLpks,RtoLlocs] = ICcompare(pksLIC,locsLIC,pksRIC,locsRIC);
-    RtoLpks = RtoLpks(all(~isnan(RtoLpks),2),:);
-    RtoLlocs = RtoLlocs(all(~isnan(RtoLpks),2),:);
-    totRpks = size(pksRIC,1);
-    totRcorrPks = size(RtoLpks,1);
-    disp(['RIC: ',num2str(size(pksRIC,1)),' peaks total, ',num2str(size(RtoLpks,1)),' corresponding LIC peaks.']);
-    disp(['Mean RIC amplitude: ', num2str(mean(pksRIC))]);
-    disp(['Mean LIC amplitude: ', num2str(mean(pksLIC))]);
-    stats = [totLpks totLcorrPks totLcorrPks/totLpks totRpks totRcorrPks totRcorrPks/totRpks mean(pksLIC) mean(pksRIC)];
-    assignin('base','stats',stats);
+    disp(['LIC: ',num2str(totLpks),' peaks total, ',num2str(totMatchedPks),' corresponding RIC peaks.']);
+    disp(['RIC: ',num2str(totRpks),' peaks total, ',num2str(totMatchedPks),' corresponding LIC peaks.']);
+    disp(['Mean RIC amplitude: ', num2str(meanR)]);
+    disp(['Mean LIC amplitude: ', num2str(meanL)]);
+    stats = [totLpks totMatchedPks totMatchedPks/totLpks totRpks totMatchedPks totMatchedPks/totRpks meanL meanR Ldom/totPks];
+    assignin('base','stats1',stats);
 %     figure;
 %         scatter(LtoRpks(:,1),LtoRpks(:,2));
 %         hold on;
@@ -70,7 +70,7 @@ function [LICinfo,RICinfo] = findICpeaks(ICsignal,filePath,analysisName)
 %         ylabel('RIC Ampltiude (AIU)');
 %     savefig([filePath,'amplScatter_',analysisName]);
 %     
-%     save([filePath,['ICinfo_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath');
+     save([filePath,['ICinfo_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath');
 %     events = graphLocsOnly(pksLIC, locsLIC, pksRIC, locsRIC); 
 %     figure;
 %     assignin('base','events',events);
@@ -100,7 +100,7 @@ function [pkData] = ICcompare2(LIC, RIC, master_pks,master_locs,pks,locs)
     
     pkData = []; %col 1: LIC loc, 2: LIC pk, 3:RIC loc, 4:RIC pk, 5:delta, 6: peak type (1=matched, 2=LIC only, 3=RIC only) 7: which is bigger (1=LIC, 2=RIC)
     locs = [locs(:) zeros(size(locs,1),1)];
-    for i=165:size(master_pks,1)
+    for i=1:size(master_pks,1)
         match = 0;
         j = 1;
         while match == 0
@@ -127,6 +127,12 @@ function [pkData] = ICcompare2(LIC, RIC, master_pks,master_locs,pks,locs)
         loc_under = 1;
         j=1;
         while loc_under == 1
+          if j > size(pkData,1)
+              temp_pkdata = [unmatchedLocs(i) LIC(unmatchedLocs(i)) unmatchedLocs(i) unmatchedPks(i) abs(unmatchedPks(i)-LIC(unmatchedLocs(i))) 3];
+              pkData = [pkData; temp_pkdata];
+              loc_under = 0;
+          end
+          
           if pkData(j, 3) < unmatchedLocs(i)
               j = j + 1;
           else
@@ -176,7 +182,7 @@ end
 
 function [indexToKeep] = ctx_PkRemoval(ctxSignal, IClocs)
     time = [1:1:size(ctxSignal,1)]';
-    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',10,'MaxPeakWidth',40,'Annotate','extents');
+    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',20,'MaxPeakWidth',40,'Annotate','extents');
     
     ctxBright = zeros(size(ctxSignal));
     for i = 1:size(locs)
@@ -292,22 +298,57 @@ function [events] = graphLocsOnly(pks1,locs1,pks2,locs2)
     events(events==-1)=0;
 end
 
-function graphEvents(pkData)
+function graphEvents(pkData, filePath)
     LIC_big = pkData(pkData(:,7)==1,:);
     RIC_big = pkData(pkData(:,7)==2,:);
-    
-    figure;
+    lt_org = [255, 166 , 38]/255;
+    dk_org = [255, 120, 0]/255;
+    lt_blue = [50, 175, 242]/255;
+    dk_blue = [0, 13, 242]/255;
+    %figure;
         %plot(-LIC_big(:,2),-LIC_big(:,1),'o','Color','red','MarkerFaceColor','red');
-        hold on;
+        %hold on;
         %plot(LIC_big(:,4),-LIC_big(:,3),'o','Color','black');
         %plot(-RIC_big(:,2),-RIC_big(:,1),'o','Color','red');
         %plot(RIC_big(:,4),-RIC_big(:,3),'o','Color','black','MarkerFaceColor','black');
         %all points with lines
-        line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color','red');
-        line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color','black');
+       % line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color','red');
+        %line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color','black');
         %only bigger events with lines
         %line([-LIC_big(:,2)'; zeros(size(LIC_big,1),1)'],[-LIC_big(:,1)'; -LIC_big(:,1)'],'Color','red');
         %line([zeros(size(RIC_big,1),1)'; RIC_big(:,4)'; ],[-RIC_big(:,3)'; -RIC_big(:,3)'],'Color','black');
+   % savefig(filePath);
+    
+    h = figure(3);
+    ax = gca;
+        hold on;
+        line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color',lt_org);
+        line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color',lt_blue);
+        line([0 0]',[-6050 50]','Color','black');
+        scatter(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),pkData(pkData(:,7)==2,5)*2,dk_blue,'filled');
+        scatter(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),pkData(pkData(:,7)==1,5)*2,dk_org,'filled');
+        set(h,'Position',[200,0,350,500]);
+        ax.XLim = [-50 50];
+        ax.YLim = [-6050 50];
+        %plot(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),'o','Color','black');
+        %plot(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),'o','Color','red');
+        
+        %plot(find(pkData(:,7)==2),0,pkData(pkData(:,7)==2,5),'o','Color','black','MarkerFaceColor','black');
+        %plot(find(pkData(:,7)==1),0,'o','Color','red','MarkerFaceColor','red');
+        
+        Rpks = pkData((pkData(:,7)==2),4)
+        Lpks = pkData((pkData(:,7)==1),2)
+        [Rcounts,Rbins]=hist(Rpks,[3:6:50]);
+        [Lcounts,Lbins]=hist(Lpks,[3:6:50]);
+        figure(4);
+            h=barh(Rbins,Rcounts,.9);
+            hold on;
+            barh(Lbins,-Lcounts,.9,'FaceColor',lt_org,'EdgeColor',lt_org);
+            h.FaceColor = lt_blue;
+            h.EdgeColor = lt_blue;
+            xlim([-50 50]);
+            ylim([0 50]);
+            set(gca,'YTickMode','auto');
         
 end
 
