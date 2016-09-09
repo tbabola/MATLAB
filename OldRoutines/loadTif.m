@@ -8,6 +8,8 @@ function img = loadTif(fname,bits)
             bitstr = 'uint8';
         case 16
             bitstr = 'int16';
+        case 32
+            bitstr = 'single';
         otherwise
             bitstr = 'uint8';
             disp('May not be loading tiff properly');
