@@ -1,8 +1,4 @@
 %% load data (provide filename fn and correct directory name dname)
-% fn = 'Experiment-159-P9_Snap25_GC6_WT-2.tif';
-% fn = 'Experiment-156-P8_Snap25_GC6_WT-2.tif'; % some movement
-%fn = 'Experiment-262-P7-Snap25GC6s-P2ry1WT-baseline-2.tif';
-% fn = 'Experiment-295-P6-Snap25_P2ry1KO_Baseline-1.tif';
 %dname = 'C:\Users\User\Downloads\';
 o_dir = pwd;
 cd 'M:\Bergles Lab Data\Projects\In vivo imaging';

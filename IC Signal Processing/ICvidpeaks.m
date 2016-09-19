@@ -1,5 +1,5 @@
-%clear all;
-%[fname fpath] = uigetfile();
+clear all;
+[fname fpath] = uigetfile();
 %load file and condense to 1-dimensional vecotr for analysis, smooth using
 %Guassian
 meanIC = loadTif([fpath fname],32);
@@ -17,21 +17,23 @@ peak_locs = find(peaks);
 [r,c] = ind2sub(size(peaks),peak_locs);
 if leftOrRight %picks out far left or far right events
     ctodel = c(r <= 15);
-    c = c(r > 15)
+    c = c(r > 15);
     r = r(r > 15);
 else
     ctodel = c(r >= 110);
-    c = c(r < 110)
-    r = r(r >= 110);
+    c = c(r < 110);
+    r = r(r < 110);
 end
 blank_area = 5;
 for i=1:size(ctodel,1)
-    peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)= zeros(size(peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)));
+    if i > blank_area
+        peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)= zeros(size(peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)));
+    end
 end
 
 sum_peaks = sum(peaks');
 pks_smIC = smIC.*peaks;
-pks_smIC(pks_smIC < 10) = 0;
+pks_smIC(pks_smIC < 15) = 0;
 
 
 figure;
