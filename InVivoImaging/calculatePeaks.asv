@@ -54,7 +54,7 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         %find max intensity event
         maxEvent = max(eventArea(:));
         [r,c] = ind2sub(size(eventArea),find(eventArea == maxEvent));
-        maxEvents = [maxEvents; r; startTime + c;];
+        maxEvents = [maxEvents; r; startTime + c;]
         
         indexLeft = c - 1;
         foundLeft = 0;
@@ -62,29 +62,19 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         foundRight = 0;
        
         while ~foundLeft && ~foundRight
-            if (smIC(r,indexLeft) < (maxEvent/2)) && ~foundLeft
+            if smIC(r,indexLeft) < (maxEvent/2) && ~foundLeft
                 halfwidthLeft = indexLeft;
                 foundLeft = 1;
             end
-            if (smIC(r,indexRight) < (maxEvent/2)) && ~foundRight
-                halfwidthRight = indexRight;
+            if smIC(r,indexRight) < (maxEvent/2) && ~foundRight
+                halfwidthLeft = indexRight;
                 foundRight = 1;
             end
             indexLeft = indexLeft - 1;
-            if(indexLeft < 1);
-                foundLeft = 1;
-                halfwidthLeft = NaN;
-            end
-            
             indexRight = indexRight + 1; 
-            if indexRight > size(smIC,2)
-                foundRight = 1;
-                halfwidthRight = NaN;
-            end
-            
         end
         
-        test = [test; halfwidthRight c halfwidthLeft];
+        test = [test; indexLeft c indexRight (indexRight - indexLeft)];
             
     end
     
