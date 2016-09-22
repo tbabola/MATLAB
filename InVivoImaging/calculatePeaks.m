@@ -8,7 +8,7 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
     %find peaks in signal
     peaks = imregionalmax(smIC);
     peaks = smIC.*peaks;
-    peaks(peaks < 5) = 0; %filter out any events less than x
+    peaks(peaks < 10) = 0; %filter out any events less than x
     peaksBinary = peaks > 0; %create binary version of peaks
     
     %blank out whole IC events, (events that are far left or far right)
@@ -36,12 +36,14 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
     %binarize peaks and collapse into 1D to calculate event timeframes
 
     oneDPeaks = sum(peaksBinary,1);
-    convPeaks = oneDPeaks + conv(single(oneDPeaks > 0),[1 1 1 1 1],'same');
+    convPeaks = oneDPeaks + conv(single(oneDPeaks > 0),ones(1,5),'same');
     convPeaks = convPeaks > 0;
     labels = bwlabel(convPeaks);
     eventNum = max(labels);
+    eventLabels = [1:1:eventNum];
     totalPeaks = [];
     maxEvents = [];
+    halfwidths = [];
     
     test = [];
     for i=1:eventNum
@@ -53,39 +55,27 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         
         %find max intensity event
         maxEvent = max(eventArea(:));
-        [r,c] = ind2sub(size(eventArea),find(eventArea == maxEvent));
-        maxEvents = [maxEvents; r; startTime + c;];
+        [row,col] = ind2sub(size(eventArea),find(eventArea == maxEvent));
+        maxEvents = [maxEvents; row, startTime + col;];
         
-        indexLeft = c - 1;
-        foundLeft = 0;
-        indexRight = c + 1;
-        foundRight = 0;
-       
-        while ~foundLeft && ~foundRight
-            if (smIC(r,indexLeft) < (maxEvent/2)) && ~foundLeft
-                halfwidthLeft = indexLeft;
-                foundLeft = 1;
-            end
-            if (smIC(r,indexRight) < (maxEvent/2)) && ~foundRight
-                halfwidthRight = indexRight;
-                foundRight = 1;
-            end
-            indexLeft = indexLeft - 1;
-            if(indexLeft < 1);
-                foundLeft = 1;
-                halfwidthLeft = NaN;
-            end
-            
-            indexRight = indexRight + 1; 
-            if indexRight > size(smIC,2)
-                foundRight = 1;
-                halfwidthRight = NaN;
-            end
-            
+        windowSize = 100;
+        if startTime - windowSize < 1
+            windowStart = 1;
+        else
+            windowStart = startTime - windowSize;
         end
         
-        test = [test; halfwidthRight c halfwidthLeft];
-            
+        if endTime + windowSize > size(smIC,2) 
+            windowEnd = size(smIC,2)
+        else
+            windowEnd = endTime + windowSize;
+        end  
+        
+        %[pks, locs, w] = 
+        %findpeaks(smIC(r,windowStart:windowEnd),'Annotate','extents','WidthReference','halfheight');
+        [pks,locs,w] = findpeaks(smIC(row,windowStart:windowEnd),'WidthReference','halfheight');
+        index = find(pks == maxEvent);
+        halfwidths = [halfwidths; w(index)];
     end
     
     
@@ -136,4 +126,46 @@ end
 % times = meanIC;
 % figure;
 % surf([1:1:125],time,times','EdgeColor','none');
-% view(2);
+% view(2
+
+
+
+%  indexLeft = startTime + c - 1;
+%         foundLeft = 0;
+%         indexRight = startTime + c + 1;
+%         foundRight = 0;
+%         halfwidthLeft = 0;
+%         halfwidthRight = 0;
+%        
+%         while ~foundLeft || ~foundRight
+%             if ~foundLeft
+%                 ampLeft = smIC(r,indexLeft);
+%             end
+%             if ~foundRight
+%                 ampRight = smIC(r,indexRight);
+%             end
+%             target = maxEvent/2;
+%             
+%             if ampLeft < target && ~foundLeft
+%                 halfwidthLeft = indexLeft;
+%                 foundLeft = 1;
+%             end
+%             if ampRight < target && ~foundRight
+%                 halfwidthRight = indexRight;
+%                 foundRight = 1;
+%             end
+%             
+%             indexLeft = indexLeft - 1;
+%             if (indexLeft < 1) && ~foundLeft
+%                 foundLeft = 1;
+%                 halfwidthLeft = NaN;
+%             end
+%             
+%             indexRight = indexRight + 1;
+%             if indexRight > size(smIC,2) && ~foundRight
+%                 foundRight = 1;
+%                 halfwidthRight = NaN;
+%             end
+%         end
+%         
+%         test = [test [halfwidthLeft; halfwidthRight; target; target]];
