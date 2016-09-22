@@ -1,7 +1,7 @@
-function smIC = calculatePeaks(meanIC,leftOrRight)
+function [smIC, histoBuild ] = calculatePeaks(meanIC,leftOrRight)
     meanIC = mean(meanIC,1);
     meanIC = squeeze(meanIC);
-    smIC = imgaussfilt(meanIC,3);
+    smIC = double(imgaussfilt(meanIC,3));
     time = [1:1:size(meanIC,2)];
     leftOrRight; %0 is left, 1 is right
 
@@ -9,12 +9,11 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
     peaks = imregionalmax(smIC);
     peaks = smIC.*peaks;
     peaks(peaks < 10) = 0; %filter out any events less than x
-    peaksBinary = peaks > 0; %create binary version of peaks
     
     %blank out whole IC events, (events that are far left or far right)
     peak_locs = find(peaks);
     [r,c] = ind2sub(size(peaks),peak_locs);
-    if leftOrRight %picks out far left or far right events
+    if leftOrRight %picks out far left or far right [r,c] = ind2sub(size(peaks),peak_locs);events
         ctodel = c(r <= 15);
         c = c(r > 15);
         r = r(r > 15);
@@ -23,18 +22,24 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         c = c(r < 110);
         r = r(r < 110);
     end
+    
     blank_area = 5;
     for i=1:size(ctodel,1)
-        if i > blank_area
-            peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)= zeros(size(peaks(:,ctodel(i)-blank_area:ctodel(i)+blank_area)));
+        if ctodel(i) < blank_area
+            delLeft = 1;
+            delRight = ctodel(i) + blank_area;
+        elseif ctodel(i) + blank_area > size(smIC,2)
+            delLeft = ctodel(i) - blank_area;
+            delRight = size(smIC,2);
+        else
+            delLeft = ctodel(i) - blank_area;
+            delRight = ctodel(i) + blank_area;
         end
+        peaks(:,delLeft:delRight)= zeros(size(peaks(:,delLeft:delRight)));
     end
 
-    
-  
-    
     %binarize peaks and collapse into 1D to calculate event timeframes
-
+    peaksBinary = peaks > 0; %create binary version of peaks
     oneDPeaks = sum(peaksBinary,1);
     convPeaks = oneDPeaks + conv(single(oneDPeaks > 0),ones(1,5),'same');
     convPeaks = convPeaks > 0;
@@ -55,7 +60,7 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         
         %find max intensity event
         maxEvent = max(eventArea(:));
-        [row,col] = ind2sub(size(eventArea),find(eventArea == maxEvent));
+        [row,col] = ind2sub(size(eventArea),find(eventArea == maxEvent,1));
         maxEvents = [maxEvents; row, startTime + col;];
         
         windowSize = 100;
@@ -77,16 +82,13 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
         index = find(pks == maxEvent);
         halfwidths = [halfwidths; w(index)];
     end
-    
-    
-    
-    
-    
-    figure;
+
+    figure('Position',[100,100, 300, 700]);
     imagesc([smIC' (convPeaks*40)'] );
     hold on;
     h(2) = scatter(r,c,'LineWidth',2);
-    ylim([0,1200]);
+
+    ylim([0,6000]);
     colormap jet;
     caxis([0,70]);
 
@@ -95,6 +97,7 @@ function smIC = calculatePeaks(meanIC,leftOrRight)
     for i=1:size(sum_peaks,2)
         histoBuild = [histoBuild i*ones(1,sum_peaks(i))];
     end
+    
     figure;
     histogram(histoBuild,20);
     xlim([0,125]);

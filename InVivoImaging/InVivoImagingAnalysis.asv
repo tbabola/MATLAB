@@ -5,7 +5,7 @@ movie = loadTif([path fn],32);
 
 [LICmov, RICmov] = ROIselection(movie);
 [smLIC, histobuild] = calculatePeaks(LICmov,0);
-histoL = histobuild;
+ histoL = histobuild;
 [smRIC, histobuild] = calculatePeaks(RICmov,1);
 histoR = histobuild;
 
