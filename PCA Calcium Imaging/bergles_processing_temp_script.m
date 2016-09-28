@@ -85,7 +85,7 @@ B_rec = Db*B'; %B_rec = Db*B'; %Estimated background
 % writeTif(single(mvo),[processed_dir 'PCA_baselinesubt.tif'],32);
 % clearvars mvo;
 mve = reshape(permute(F_rec,[2 1]),m,n,T);
-writeTif(single(mve),[processed_dir 'PCA.tif'],32);
+writeTif(single(mve),[processed_dir fn(5:18) '_PCA.tif'],32);
 %mva = cat(1,normmat(mvo),normmat(mve));
 %writeTif(single(mva),[processed_dir 'PCAbeforeafter.tif'],32);
 % for i = 1:T

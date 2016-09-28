@@ -11,11 +11,7 @@ histoL = histobuild;
 histoR = histobuild;
 convR = convPeaks;
 
-
-
-conv = (convL + convR);
-figure;
-imagesc(conv'*40);
+conv = convL + convR
 
 % savefile = 'ICmovs_peaks.mat';
 % save([path savefile],'LICmov','RICmov','smLIC','smRIC','histoL','histoR'); 
