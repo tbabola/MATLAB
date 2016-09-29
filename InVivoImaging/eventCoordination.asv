@@ -21,8 +21,7 @@
         end
     end
     
-    leftEvents = (leftLabel - (500*biEvents)) > 0;
-    rightEvents = (rightLabel - (500*biEvents)) > 0;
+    biEvents = biEven
 
 %end
 
