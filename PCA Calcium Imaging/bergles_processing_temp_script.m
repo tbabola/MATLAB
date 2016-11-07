@@ -1,10 +1,12 @@
 %% load data (provide filename fn and correct directory name dname)
 %dname = 'C:\Users\User\Downloads\';
 o_dir = pwd;
-cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
+cd 'M:\Be rgles Lab Data\Projects\In vivo imaging';
 [fn dname] = uigetfile();
 if ismac, dname = '/Volumes/Disk2/CalciumImageData/others/bergles/'; end
 fname = [dname fn];
+
+fn
 
 %% load movie
 X = loadTif(fname);
