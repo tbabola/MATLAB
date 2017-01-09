@@ -1,7 +1,8 @@
 % load file
+%cd 'C:\Users\Bergles Lab\Desktop'
  cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
- [fn path] = uigetfile();
- movie = loadTif([path fn],32);
+[fn path] = uigetfile();
+movie = loadTif([path fn],32);
 [LICmov, RICmov] = ROIselection(movie);
 % 
 % %LIC
@@ -14,7 +15,7 @@ plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
 
 %event stats
 [stats] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
-
+ 
 
 %event coordination
 %[ leftEvents biEvents rightEvents, test ] = eventCoordination(convL, convR, smLIC.*binaryPeaksL, smRIC.*binaryPeaksR);

@@ -1,12 +1,11 @@
 %% load data (provide filename fn and correct directory name dname)
 %dname = 'C:\Users\User\Downloads\';
-o_dir = pwd;
-cd 'M:\Be rgles Lab Data\Projects\In vivo imaging';
+o_dir =  pwd;
+cd 'C:\Users\Bergles Lab\Desktop';
+%cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
 [fn dname] = uigetfile();
 if ismac, dname = '/Volumes/Disk2/CalciumImageData/others/bergles/'; end
 fname = [dname fn];
-
-fn
 
 %% load movie
 X = loadTif(fname);
@@ -94,4 +93,5 @@ writeTif(single(mve),[processed_dir fn(5:18) '_PCA.tif'],32);
 % imagesc(mva(:,:,i),[0.01 .95]); axis image; axis off;
 % pause(.001)
 % end
-cd o_dir
+movefile([dname fn], processed_dir);
+cd(o_dir);

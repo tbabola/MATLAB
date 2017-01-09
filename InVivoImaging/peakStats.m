@@ -35,7 +35,7 @@ end
 
 function [convPeaks] = convolvePeaks(peaksBinary)
     oneDPeaks = sum(peaksBinary,1);
-    convPeaks = oneDPeaks + conv(single(oneDPeaks > 0),ones(1,5),'same');
+    convPeaks = oneDPeaks + conv(single(oneDPeaks > 0),ones(1,6),'same');
     convPeaks = convPeaks > 0;
 end
 
@@ -88,12 +88,14 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         tloc = [tloc; c];
         
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smLIC,2));
-        [pks,locs,w] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfheight');
+        [pks,locs,w] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfprom');
+        [pk2,locs2,w2] = findpeaks(smLIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+        w(w > w2) = w2(w > w2);
         index = find(pks == leftAmp);
         hwt = [hwt; w(index)];
         
         if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfheight');
+            [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfprom');
             index = find(pks == leftAmp);
             hwx = [hwx; w(index)];
         else
@@ -118,12 +120,14 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         tloc = [tloc; c];
         
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smRIC,2));
-        [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfheight');
+        [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfprom');
+        [pk2,locs2,w2] = findpeaks(smRIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+        w(w > w2) = w2(w > w2);
         index = find(pks == rightAmp);
         hwt = [hwt; w(index)];
         
         if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfheight');
+            [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfprom');
             index = find(pks == rightAmp);
             hwx = [hwx; w(index)];
         else
@@ -162,12 +166,14 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         end
  
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smIC,2));
-        [pks,locs,w] = findpeaks(smIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+        [pks,locs,w] = findpeaks(smIC(xloc(end),windowStart:windowEnd),'WidthReference','halfprom');
+        [pk2,locs2,w2] = findpeaks(smIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+        w(w > w2) = w2(w > w2);
         index = find(pks == domAmp(end));
         hwt = [hwt; w(index)];
         
         if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smIC(:,tloc(end)),'WidthReference','halfheight');
+            [pks,locs,w] = findpeaks(smIC(:,tloc(end)),'WidthReference','halfprom');
             index = find(pks == domAmp(end));
             hwx = [hwx; w(index)];
         else

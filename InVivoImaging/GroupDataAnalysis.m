@@ -1,7 +1,6 @@
 %% Wildtype data
 load('M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\GroupData_paths.mat');
 paths = groupData(:,3);
-paths = paths(5);
 groupHistoL = [];
 groupHistoR = [];
 groupAmpL = [];
@@ -26,7 +25,7 @@ for i=1:size(paths)
     [peakStat, eventStats] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
     plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
     %eventStat = table(eventLabel, eventClassification, leftOrRightDom, numPeaks, domAmp, maxLAmp, maxRAmp,xloc, tloc, hwt, hwx);
-    individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmedian(eventStats.hwx)];
+    individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmedian(eventStats.hwx) size((find(eventStats.numPeaks > 1)),1)/max(eventStats.eventLabel)*100];
     peaksL = peakStat{1};
     peaksR = peakStat{2};
     groupHistoL = [groupHistoL; peaksL(:,2)];
@@ -109,7 +108,7 @@ for i=1:size(paths)
     
     [peakStat, eventStats] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
     plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
-    VG3individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmedian(eventStats.hwx)];
+    VG3individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmedian(eventStats.hwx) size((find(eventStats.numPeaks > 1)),1)/max(eventStats.eventLabel)*100];
     
     peaksL = peakStat{1};
     peaksR = peakStat{2};
@@ -119,6 +118,7 @@ for i=1:size(paths)
     VG3groupAmpR = [VG3groupAmpR; i*ones(size(peaksR,1),1), peaksR];
     VG3totalEvents = [VG3totalEvents; eventStats];
     
+   
 %     tempR = stats;
 %     statsR = [statsR; stats];
 %     
@@ -199,27 +199,30 @@ end
 % end
 % 
 % close all;
+
+%% Plot
 figure;
+cutoff =0;
 subplot(3,1,1);
-cdfplot(totalEvents.hwx(totalEvents.domAmp > 20));
+cdfplot(totalEvents.hwx(totalEvents.domAmp > cutoff)*7.45);
 hold on;
 %cdfplot(KOtotalEvents.hwx);
-cdfplot(VG3totalEvents.hwx(VG3totalEvents.domAmp > 20));
+cdfplot(VG3totalEvents.hwx(VG3totalEvents.domAmp > cutoff)*7.45);
 %cdfplot(a9totalEvents.hwx);
-cdfplot(SaltotalEvents.hwx(SaltotalEvents.domAmp > 20));
-xlabel('Spatial Sread (pixels)');
-legend('WT','vG3 KO','Salicylate');
+%cdfplot(SaltotalEvents.hwx(SaltotalEvents.domAmp > 20));
+xlabel('Spatial Spread (\mum)');
+legend('WT','vG3 KO');
 %set(gcf,'XTicks',0:25:125,'XLabels',num2str(7.65*[0:25:125]),1,5);
 % 
 subplot(3,1,2);
-cdfplot(totalEvents.hwt(totalEvents.domAmp > 20));
+cdfplot(totalEvents.hwt(totalEvents.domAmp > cutoff)/10);
 hold on;
 %cdfplot(KOtotalEvents.hwt);
-cdfplot(VG3totalEvents.hwt(VG3totalEvents.domAmp > 20));
+cdfplot(VG3totalEvents.hwt(VG3totalEvents.domAmp > cutoff)/10);
 %cdfplot(a9totalEvents.hwt);
-cdfplot(SaltotalEvents.hwt(SaltotalEvents.domAmp > 20));
-xlabel('Half-width (frames, 100ms/frame)');
-legend('WT','vG3 KO','Salicylate');
+%cdfplot(SaltotalEvents.hwt(SaltotalEvents.domAmp > 20));
+xlabel('Half-width (s)');
+legend('WT','vG3 KO');
 
 subplot(3,1,3);
 cdfplot(totalEvents.domAmp);
@@ -227,7 +230,7 @@ hold on;
 %cdfplot(KOtotalEvents.hwt);
 cdfplot(VG3totalEvents.domAmp);
 %cdfplot(a9totalEvents.hwt);
-cdfplot(SaltotalEvents.domAmp);
+%cdfplot(SaltotalEvents.domAmp);
 xlabel('Amplitude (AIU)');
-legend('WT','vG3 KO','Salicylate');
+legend('WT','vG3 KO');
 
