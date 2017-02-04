@@ -1,12 +1,7 @@
-function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
+function [LICinfo,RICinfo] = findICpeaks(ICsignal,filePath,analysisName)
     if ~exist('analysisName','var')
         analysisName = 'stock';
     end
-    if ~exist('plotFlag','var')
-        plotFlag = 1;
-    end
-    
-    
     time = [1:1:size(ICsignal,1)]';
     LIC = msbackadj(time,smooth(ICsignal(:,1),3));
     RIC = msbackadj(time,smooth(ICsignal(:,2),3));
@@ -31,27 +26,24 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
     locsRIC = locs(RIC_itk);
     wRIC = w(RIC_itk);
     RICinfo = [pksRIC locsRIC wRIC];
+   
+    
+    figure;
+    subplot(2,1,1);
+        plot(time/10,LIC);
+        hold on;
+        plot(time/10,RIC);
+        plot(locsRIC/10,pksRIC,'o');
+        plot(locsLIC/10,pksLIC,'o');
+        ylabel('Amplitude (AIU)')
+        xlabel('Time (s)');
+    subplot(2,1,2);
+        plot(time/10,bg);
+        ylabel('Amplitude (AIU)')
+        xlabel('Time (s)');
+    savefig([filePath,'dfof_bg_',analysisName]);
     pkData = ICcompare2(LIC, RIC, pksLIC,locsLIC,pksRIC,locsRIC);
-    
-    if(plotFlag)
-        figure;
-        subplot(2,1,1);
-            plot(time/10,LIC);
-            hold on;
-            plot(time/10,RIC);
-            plot(locsRIC/10,pksRIC,'o');
-            plot(locsLIC/10,pksLIC,'o');
-            ylabel('Amplitude (AIU)')
-            xlabel('Time (s)');
-        subplot(2,1,2);
-            plot(time/10,bg);
-            ylabel('Amplitude (AIU)')
-            xlabel('Time (s)');
-
-        graphEvents(pkData,[filePath,'timevert_',analysisName]);
-    end
-    %savefig([filePath,'dfof_bg_',analysisName]);
-    
+    graphEvents(pkData,[filePath,'timevert_',analysisName]);
     assignin('base','pkdata',pkData);
     
     %get stats about events
@@ -68,7 +60,7 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
     disp(['RIC: ',num2str(totRpks),' peaks total, ',num2str(totMatchedPks),' corresponding LIC peaks.']);
     disp(['Mean RIC amplitude: ', num2str(meanR)]);
     disp(['Mean LIC amplitude: ', num2str(meanL)]);
-    stats = table(totLpks, totRpks, totMatchedPks, meanL, meanR, Ldom/totPks, totLpks+totRpks-totMatchedPks);
+    stats = t[totLpks totMatchedPks totMatchedPks/totLpks totRpks totMatchedPks totMatchedPks/totRpks meanL meanR Ldom/totPks];
     assignin('base','stats1',stats);
 %     figure;
 %         scatter(LtoRpks(:,1),LtoRpks(:,2));
@@ -327,8 +319,7 @@ function graphEvents(pkData, filePath)
         %line([zeros(size(RIC_big,1),1)'; RIC_big(:,4)'; ],[-RIC_big(:,3)'; -RIC_big(:,3)'],'Color','black');
    % savefig(filePath);
     
-    %h = figure(3);
-    h = figure;
+    h = figure(3);
     ax = gca;
         hold on;
         line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color',lt_org);

@@ -1,6 +1,6 @@
 %Script to find ISIs for SGN Ca
 
-base = 'D:\Bergles Lab Data\RecordingsAndImaging\';
+base = 'G:\Bergles Lab Data\RecordingsAndImaging\';
 %filename, baseline start (sec), end, drug start, end
  files = {
 %          very high firing, no NBQX/CPP
@@ -21,15 +21,19 @@ base = 'D:\Bergles Lab Data\RecordingsAndImaging\';
 
             %WT + MRS25000
             %'150719\15719003.abf',0,600,900,1500
-            %'150723\15723000.abf',0,600,900,1500
+            '150723\15723000.abf',0,600,900,1500
             %'150723\15723002.abf',0,600,900,1500
             %'150723\15723003.abf',0,600,900,1500
             %'150723\15723006.abf',60,660,960,1560
             
-             '150724\15724000.abf',30,630,930,1530
-             '150724\15724001.abf',0,600,900,1500
-             '150724\15724002.abf',0,600,601,602
-             '150724\15724004.abf',0,600,900,1500
+            % '150724\15724000.abf',30,630,930,1530
+             %'150724\15724001.abf',0,600,900,1500
+            % '150724\15724002.abf',0,600,601,602
+             %'150724\15724004.abf',0,600,900,1500
+             
+             
+            % '170111\17111000.abf',0,300,0,300'
+         
          };
 
 for i=1:size(files,1)

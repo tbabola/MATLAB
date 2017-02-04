@@ -30,7 +30,7 @@ function [ peakStat, eventStat ] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBi
     leftConv = convolvePeaks(peaksBinaryL);
     rightConv = convolvePeaks(peaksBinaryR);
     
-    plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eventStat)
+    %plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eventStat)
 end
 
 function [convPeaks] = convolvePeaks(peaksBinary)
@@ -94,8 +94,8 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         index = find(pks == leftAmp);
         hwt = [hwt; w(index)];
         
-        if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfprom');
+        if numPeaks(end) == 1 && (xloc(end) > 60 && xloc(end) < 100);
+            [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfheight');
             index = find(pks == leftAmp);
             hwx = [hwx; w(index)];
         else
@@ -126,8 +126,8 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         index = find(pks == rightAmp);
         hwt = [hwt; w(index)];
         
-        if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfprom');
+        if numPeaks(end) == 1 && (xloc(end) > 25 && xloc(end) < 65);
+            [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfheight');
             index = find(pks == rightAmp);
             hwx = [hwx; w(index)];
         else
@@ -156,6 +156,8 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
           tloc = [tloc; lc];
           smIC = smLIC;
           domAmp = [domAmp; leftAmp];
+          leftInd = 60;
+          rightInd = 100;
         else
            leftOrRightDom = [leftOrRightDom; 'Right'];
            numPeaks = [numPeaks; size(find(rightBinaryVal(:,indices)),1)];
@@ -163,6 +165,8 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
            tloc = [tloc; rc];
            smIC = smRIC;
            domAmp = [domAmp; rightAmp];
+           leftInd = 25;
+           rightInd = 65;
         end
  
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smIC,2));
@@ -172,8 +176,8 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         index = find(pks == domAmp(end));
         hwt = [hwt; w(index)];
         
-        if numPeaks(end) == 1 && (xloc(end) > 40 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smIC(:,tloc(end)),'WidthReference','halfprom');
+        if numPeaks(end) == 1 && (xloc(end) > leftInd && xloc(end) < rightInd);
+            [pks,locs,w] = findpeaks(smIC(:,tloc(end)),'WidthReference','halfheight');
             index = find(pks == domAmp(end));
             hwx = [hwx; w(index)];
         else
@@ -307,7 +311,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     lhwxlinesy = [lt lt]';
     lhwtlinesx = [lx lx]';
     lhwtlinesy = [lt-lhwt lt+lhwt]';
-    rhwx= eventStat.hwt(rightDomIndices)/2;
+    rhwx= eventStat.hwx(rightDomIndices)/2;
     rhwt= eventStat.hwt(rightDomIndices)/2;
     rx = eventStat.xloc(rightDomIndices);
     rt = eventStat.tloc(rightDomIndices);
@@ -320,7 +324,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     p = figure('Position',[100 0 300 600]);
     set(p,'Color','black');
     colormap jet;
-    pv = [.15 .3 .4 .65]
+    pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
     caxis([0 80]);

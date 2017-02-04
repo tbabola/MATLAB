@@ -108,7 +108,7 @@ for i=1:size(paths)
     
     [peakStat, eventStats] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
     plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
-    VG3individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmedian(eventStats.hwx) size((find(eventStats.numPeaks > 1)),1)/max(eventStats.eventLabel)*100];
+    VG3individualStats(i,:) = [max(eventStats.eventLabel) median(eventStats.domAmp) median(eventStats.hwt) nanmean(eventStats.hwx) size((find(eventStats.numPeaks > 1)),1)/max(eventStats.eventLabel)*100];
     
     peaksL = peakStat{1};
     peaksR = peakStat{2};
@@ -234,3 +234,15 @@ cdfplot(VG3totalEvents.domAmp);
 xlabel('Amplitude (AIU)');
 legend('WT','vG3 KO');
 
+%%more plot
+figure;
+histogram([groupHistoL; abs(groupHistoR-125)],25,'faceColor','black','edgeColor','black','faceAlpha',1)
+xlim([0,125]);
+hold on;
+histogram([VG3groupHistoL; abs(VG3groupHistoR-125)],25,'faceColor','red','edgeColor','black','faceAlpha',1)
+
+figure;
+ksdensity([groupHistoL; abs(groupHistoR-125)]);
+hold on;
+yyaxis right;
+ksdensity([VG3groupHistoL; abs(VG3groupHistoR-125)]);
