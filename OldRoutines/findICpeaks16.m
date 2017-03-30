@@ -1,4 +1,4 @@
-function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
+function [stats, pkData] = findICpeaks16(ICsignal,filePath,analysisName,plotFlag)
     if ~exist('analysisName','var')
         analysisName = 'stock';
     end
@@ -14,8 +14,8 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
     
     
     %parameters
-    pkThreshold = 1;
-    pkMinHeight = 1;
+    pkThreshold = 10;
+    pkMinHeight = 10;
     pkDistance = 5; %in frame, 10 = 1s
     [pks,locs,w] = findpeaks(LIC,'MinPeakProminence',pkThreshold,'MinPeakHeight',pkMinHeight,'MinPeakDistance',pkDistance,'Annotate','extents');
     LIC_itk = ctx_PkRemoval(bg, locs);
@@ -35,7 +35,7 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
     
     if(plotFlag)
         figure;
-        subplot(2,1,1);
+        subplot(3,1,1);
             plot(time/10,LIC);
             hold on;
             plot(time/10,RIC);
@@ -43,10 +43,14 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
             plot(locsLIC/10,pksLIC,'o');
             ylabel('Amplitude (AIU)')
             xlabel('Time (s)');
-        subplot(2,1,2);
+        subplot(3,1,2);
             plot(time/10,bg);
             ylabel('Amplitude (AIU)')
             xlabel('Time (s)');
+        subplot(3,1,3);
+            plot(time/10,LIC-bg);
+            hold on;
+            plot(time/10,RIC-bg);
         disp('plot active');
         graphEvents(pkData,[filePath,'timevert_',analysisName]);
     end
@@ -78,7 +82,7 @@ function [stats, pkData] = findICpeaks(ICsignal,filePath,analysisName,plotFlag)
 %         ylabel('RIC Ampltiude (AIU)');
 %     savefig([filePath,'amplScatter_',analysisName]);
 %     
-     save([filePath,['ICinfo_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath');
+     save([filePath,['ICinfo16_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath');
 %     events = graphLocsOnly(pksLIC, locsLIC, pksRIC, locsRIC); 
 %     figure;
 %     assignin('base','events',events);
@@ -187,7 +191,7 @@ end
 
 function [indexToKeep] = ctx_PkRemoval(ctxSignal, IClocs)
     time = [1:1:size(ctxSignal,1)]';
-    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',5,'MaxPeakWidth',40,'Annotate','extents');
+    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',50,'Annotate','extents');
     
     ctxBright = zeros(size(ctxSignal));
     for i = 1:size(locs)
@@ -331,10 +335,10 @@ function graphEvents(pkData, filePath)
         hold on;
         line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color',lt_blue);
         line([0 0]',[-6050 50]','Color','black');
-        scatter(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),pkData(pkData(:,7)==2,5)*2,dk_blue,'filled'); %'MarkerEdgeColor',dk_blue);
-        scatter(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),pkData(pkData(:,7)==1,5)*2,dk_org,'filled'); %,'MarkerEdgeColor',dk_org);
+        scatter(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),pkData(pkData(:,7)==2,5)/10,dk_blue,'filled'); %'MarkerEdgeColor',dk_blue);
+        scatter(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),pkData(pkData(:,7)==1,5)/10,dk_org,'filled'); %,'MarkerEdgeColor',dk_org);
         set(h,'Position',[200,0,350,500]);
-        ax.XLim = [-50 50];
+        ax.XLim = [-1700 1700];
         ax.YLim = [-6050 50];
         %plot(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),'o','Color','black');
         %plot(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),'o','Color','red');

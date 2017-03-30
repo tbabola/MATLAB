@@ -1,11 +1,10 @@
+[fn dname] = uigetfile('*.tif','Multiselect','on');
+
+for i=1:length(fn)
+    
 %% load data (provide filename fn and correct directory name dname)
-%dname = 'C:\Users\User\Downloads\';
-o_dir =  pwd;
-cd 'C:\Users\Bergles Lab\Desktop';
-%cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
-[fn dname] = uigetfile('*.tif');
-if ismac, dname = '/Volumes/Disk2/CalciumImageData/others/bergles/'; end
-fname = [dname fn];
+fname = strcat(dname, fn{i});
+filename = strcat(fn{i});
 
 %% load movie
 X = loadTif(fname,16);
@@ -94,3 +93,4 @@ writeTif(single(mve),[processed_dir fn(5:18) '_PCA.tif'],32);
 % pause(.001)
 % end
 movefile([dname fn], processed_dir);
+end

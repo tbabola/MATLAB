@@ -14,10 +14,10 @@ function plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat)
     p = figure('Position',[100 0 300 600]);
     set(p,'Color','black');
     colormap jet;
-    pv = [.15 .3 .4 .65]
+    pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
-    caxis([0 80]);
+    caxis([0 60]);
     xlim([0 125]);
     ylim([000 3000]);
     hold on; 
@@ -28,7 +28,7 @@ function plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat)
     pv = [.58 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smRIC');
-    caxis([0 80]);
+    caxis([0 60]);
     xlim([0 125]);
     ylim([0000 3000]);
     hold on; 
