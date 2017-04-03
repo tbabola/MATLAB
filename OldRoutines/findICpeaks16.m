@@ -8,14 +8,14 @@ function [stats, pkData] = findICpeaks16(ICsignal,filePath,analysisName,plotFlag
     
     
     time = [1:1:size(ICsignal,1)]';
-    LIC = msbackadj(time,smooth(ICsignal(:,1),3));
-    RIC = msbackadj(time,smooth(ICsignal(:,2),3));
-    bg = msbackadj(time,smooth(ICsignal(:,3),3));
+    LIC = msbackadj(time,smooth(ICsignal(:,1),3),'StepSize',750,'WindowSize',750);
+    RIC = msbackadj(time,smooth(ICsignal(:,2),3),'StepSize',750,'WindowSize',750);
+    bg = msbackadj(time,smooth(ICsignal(:,3),3),'StepSize',750,'WindowSize',750);
     
     
     %parameters
-    pkThreshold = 10;
-    pkMinHeight = 10;
+    pkThreshold = 20;
+    pkMinHeight = 20;
     pkDistance = 5; %in frame, 10 = 1s
     [pks,locs,w] = findpeaks(LIC,'MinPeakProminence',pkThreshold,'MinPeakHeight',pkMinHeight,'MinPeakDistance',pkDistance,'Annotate','extents');
     LIC_itk = ctx_PkRemoval(bg, locs);
@@ -191,7 +191,7 @@ end
 
 function [indexToKeep] = ctx_PkRemoval(ctxSignal, IClocs)
     time = [1:1:size(ctxSignal,1)]';
-    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',50,'Annotate','extents');
+    [pks,locs,w] = findpeaks(msbackadj(time,ctxSignal),'MinPeakHeight',75,'Annotate','extents');
     
     ctxBright = zeros(size(ctxSignal));
     for i = 1:size(locs)
@@ -204,7 +204,7 @@ function [indexToKeep] = ctx_PkRemoval(ctxSignal, IClocs)
         if upper > size(ctxSignal,1)
             upper = size(ctxSignal,1);
         end
-        disp([lower '  ' upper])
+        %disp([lower '  ' upper]);
         ctxBright(lower:upper) = 1;
     end
     
@@ -331,14 +331,14 @@ function graphEvents(pkData, filePath)
     %h = figure(3);
     h = figure;
     ax = gca;
-        line([-pkData(:,2)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color',lt_org);
+        line([(-pkData(:,2)/20)'; zeros(size(pkData,1),1)'],[-pkData(:,1)'; -pkData(:,1)'],'Color',lt_org);
         hold on;
-        line([zeros(size(pkData,1),1)'; pkData(:,4)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color',lt_blue);
+        line([zeros(size(pkData,1),1)'; (pkData(:,4)/20)'; ],[-pkData(:,3)'; -pkData(:,3)'],'Color',lt_blue);
         line([0 0]',[-6050 50]','Color','black');
-        scatter(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),pkData(pkData(:,7)==2,5)/10,dk_blue,'filled'); %'MarkerEdgeColor',dk_blue);
-        scatter(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),pkData(pkData(:,7)==1,5)/10,dk_org,'filled'); %,'MarkerEdgeColor',dk_org);
+        scatter(pkData((pkData(:,7)==2),4)/20,-pkData((pkData(:,7)==2),3),pkData(pkData(:,7)==2,5)/10,dk_blue,'filled','MarkerEdgeColor',dk_blue); %'MarkerEdgeColor',dk_blue);
+        scatter(-pkData((pkData(:,7)==1),2)/20,-pkData((pkData(:,7)==1),1),pkData(pkData(:,7)==1,5)/10,dk_org,'filled','MarkerEdgeColor',dk_org); %,'MarkerEdgeColor',dk_org);
         set(h,'Position',[200,0,350,500]);
-        ax.XLim = [-1700 1700];
+        ax.XLim = [-50 50];
         ax.YLim = [-6050 50];
         %plot(pkData((pkData(:,7)==2),4),-pkData((pkData(:,7)==2),3),'o','Color','black');
         %plot(-pkData((pkData(:,7)==1),2),-pkData((pkData(:,7)==1),1),'o','Color','red');
@@ -346,11 +346,11 @@ function graphEvents(pkData, filePath)
         %plot(find(pkData(:,7)==2),0,pkData(pkData(:,7)==2,5),'o','Color','black','MarkerFaceColor','black');
         %plot(find(pkData(:,7)==1),0,'o','Color','red','MarkerFaceColor','red');
         
-        Rpks = pkData((pkData(:,7)==2),4)
-        Lpks = pkData((pkData(:,7)==1),2)
+        Rpks = pkData((pkData(:,7)==2),4);
+        Lpks = pkData((pkData(:,7)==1),2);
         hold off;
-        Rcounts= histcounts(Rpks,[0:6:42 100]);
-        Lcounts =histcounts(Lpks,[0:6:42 100]);
+        Rcounts= histcounts(Rpks/20,[0:6:42 100]);
+        Lcounts =histcounts(Lpks/20,[0:6:42 100]);
         binY = [3:6:45];
         
         figure;
@@ -361,6 +361,7 @@ function graphEvents(pkData, filePath)
             h.FaceColor = lt_blue;
             h.EdgeColor = 'none';
             xlim([-100 100]);
+            %xticks([-25 0 25]);
             xticks([-100 -50 0 50 100]);
             ylim([0 50]);
             yticks([0 25 50]);

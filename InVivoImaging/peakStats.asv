@@ -225,28 +225,24 @@ function [leftEvents, biEvents, rightEvents] = eventCoordination(smLIC, smRIC, l
     leftEvents = (leftLabel - (500*biEvents)) > 0;
     rightEvents = (rightLabel - (500*biEvents)) > 0;
     
-   
+    function filt = filtEvents(events)
+        for i=1:max(events)
+            indices = find(event == i);
+            if(size(indices,1) < 3)
+                events(indices) = 0;
+            end
+       
+        end
+ 
+    end
+
+    
     leftEvents = bwlabel(leftEvents);
     rightEvents = bwlabel(rightEvents);
     biEvents = bwlabel(biEvents);
-    leftEvents = bwlabel(filtEvents(leftEvents));
-    rightEvents = bwlabel(filtEvents(rightEvents));
-    biEvents = bwlabel(filtEvents(biEvents));
     %figure;
     %imagesc([smLIC' leftEvents' biEvents' rightEvents' smRIC]);
-     
-end
-
-function filt = filtEvents(events)
-    max(events)
-    for i=1:max(events)
-        indices = find(events == i);
-        if(size(indices,1) < 3)
-            events(indices) = 0;
-        end
-    end
     
-    filt = events;
 end
 
 
@@ -280,7 +276,9 @@ function [eventStats] = analyzeEvents(smIC, peaksBinary)
             windowStart = startTime - windowSize;
             windowEnd = endTime + windowSize;
         end
-       
+        
+        %[pks, locs, w] = 
+        %findpeaks(smIC(r,windowStart:windowEnd),'Annotate','extents','WidthReference','halfheight');
         [pks,locs,w] = findpeaks(smIC(row,windowStart:windowEnd),'WidthReference','halfheight');
         index = find(pks == maxEvents(i));
         halfwidths = [halfwidths; w(index)];
@@ -344,7 +342,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
-    caxis([0 600]);
+    caxis([0 80]);
     xlim([0 125]);
     ylim([000 6000]);
     hold on; 
@@ -357,7 +355,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.58 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smRIC');
-    caxis([0 600]);
+    caxis([0 80]);
     xlim([0 125]);
     ylim([0000 6000]);
     hold on; 
