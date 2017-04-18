@@ -120,9 +120,7 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         tloc = [tloc; c];
         
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smRIC,2));
-        [windowStart, windowEnd]
-
-        [r]
+        
         [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfprom');
         [pk2,locs2,w2] = findpeaks(smRIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
         w(w > w2) = w2(w > w2);
@@ -227,9 +225,12 @@ function [leftEvents, biEvents, rightEvents] = eventCoordination(smLIC, smRIC, l
     
    
     leftEvents = bwlabel(leftEvents);
+    LE1 = max(leftEvents);
     rightEvents = bwlabel(rightEvents);
     biEvents = bwlabel(biEvents);
     leftEvents = bwlabel(filtEvents(leftEvents));
+    LE2 = max(leftEvents);
+    disp(['Left Events ' num2str(LE1) ' ' num2str(LE2)]);
     rightEvents = bwlabel(filtEvents(rightEvents));
     biEvents = bwlabel(filtEvents(biEvents));
     %figure;
@@ -240,7 +241,7 @@ end
 function filt = filtEvents(events)
     max(events)
     for i=1:max(events)
-        indices = find(events == i);
+        indices = find(events == i)';
         if(size(indices,1) < 3)
             events(indices) = 0;
         end

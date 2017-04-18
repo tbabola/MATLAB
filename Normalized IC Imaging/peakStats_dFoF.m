@@ -1,4 +1,4 @@
-function [ peakStat, eventStat ] = peakStats(smLIC, peaksBinaryL, smRIC, peaksBinaryR)
+function [ peakStat, eventStat ] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, peaksBinaryR)
 
 %   simple peaks only analysis, not "events"
     LpeakAmps = [];
@@ -53,9 +53,7 @@ function [windowStart, windowEnd] = getWindow(index, windowSize, size)
 end
 
 function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLIC, leftBinary, rightBinary)
-    totalEvents = max(rightEvents) + max(leftEvents) + max(biEvents);
     
-    eventLabel = [1:1:totalEvents]';
     eventClassification = {};
     leftOrRightDom = {};
     numPeaks = [];
@@ -69,7 +67,7 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
     
     leftBinaryVal = smLIC .* leftBinary; %gives actual value for peaks
     rightBinaryVal = smRIC .* rightBinary;
-    windowSize = 300;
+    windowSize = 350;
     
     %for left events
     for i=1:max(leftEvents)
@@ -77,31 +75,44 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         leftAmp = max(max(leftBinaryVal(:,indices)));
         peakLoc = find(leftBinaryVal == leftAmp);
         [r,c] = ind2sub(size(smLIC),peakLoc);
-        numPeaks = [numPeaks; size(find(leftBinaryVal(:,indices)),1)]; 
+        
+        if size(r) == 1
+            numPeaks = [numPeaks; size(find(leftBinaryVal(:,indices)),1)]; 
 
-        eventClassification = [eventClassification; 'Left'];
-        leftOrRightDom = [leftOrRightDom; 'Left'];
-        maxLAmp = [maxLAmp; leftAmp];
-        maxRAmp = [maxRAmp; 0];
-        domAmp = [domAmp; leftAmp];
-        xloc = [xloc; r];
-        tloc = [tloc; c];
-        
-        [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smLIC,2));
-        [pks,locs,w] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfprom');
-        [pk2,locs2,w2] = findpeaks(smLIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
-        w(w > w2) = w2(w > w2);
-        index = find(pks == leftAmp);
-        hwt = [hwt; w(index)];
-        
-        if numPeaks(end) == 1 && (xloc(end) > 60 && xloc(end) < 100);
-            [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfheight');
+            eventClassification = [eventClassification; 'Left'];
+            leftOrRightDom = [leftOrRightDom; 'Left'];
+            maxLAmp = [maxLAmp; leftAmp];
+            maxRAmp = [maxRAmp; 0];
+            domAmp = [domAmp; leftAmp];
+            xloc = [xloc; r];
+            tloc = [tloc; c];
+
+            [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smLIC,2));
+            [pks,locs,w] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfprom');
+            [pk2,locs2,w2] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfheight');
+            if size(w,2) > size(w2,2)
+                [m,n] = size(w2);
+                zw2 = zeros(size(w));
+                zw2(1:n) = w2;
+                w2 = zw2;
+            end
+            w(w > w2) = w2(w > w2);
             index = find(pks == leftAmp);
-            hwx = [hwx; w(index)];
+            hwt = [hwt; w(index)];
+
+            if numPeaks(end) == 1 && (xloc(end) > 60 && xloc(end) < 100);
+                [pks,locs,w] = findpeaks(smLIC(:,c),'WidthReference','halfheight');
+                index = find(pks == leftAmp);
+                hwx = [hwx; w(index)];
+            else
+                hwx = [hwx; NaN];
+            end   
         else
-            hwx = [hwx; NaN];
-        end   
+            leftEvents(leftEvents == i) = 0;
+            disp('Left event rejected');
+        end
     end
+    leftEvents = bwlabel(leftEvents > 0);
     
      %for right events
     for i=1:max(rightEvents)
@@ -109,34 +120,44 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         rightAmp = max(max(rightBinaryVal(:,indices)));
         peakLoc = find(rightBinaryVal == rightAmp);
         [r,c] = ind2sub(size(smRIC),peakLoc);
-        numPeaks = [numPeaks; size(find(rightBinaryVal(:,indices)),1)]; 
-
-        eventClassification = [eventClassification; 'Right'];
-        leftOrRightDom = [leftOrRightDom; 'Right'];
-        maxLAmp = [maxLAmp; 0];
-        maxRAmp = [maxRAmp; rightAmp];
-        domAmp = [domAmp; rightAmp];
-        xloc = [xloc; r];
-        tloc = [tloc; c];
         
-        [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smRIC,2));
-        [windowStart, windowEnd]
+        if size(r) == 1
+            numPeaks = [numPeaks; size(find(rightBinaryVal(:,indices)),1)]; 
 
-        [r]
-        [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfprom');
-        [pk2,locs2,w2] = findpeaks(smRIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
-        w(w > w2) = w2(w > w2);
-        index = find(pks == rightAmp);
-        hwt = [hwt; w(index)];
-        
-        if numPeaks(end) == 1 && (xloc(end) > 25 && xloc(end) < 65);
-            [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfheight');
+            eventClassification = [eventClassification; 'Right'];
+            leftOrRightDom = [leftOrRightDom; 'Right'];
+            maxLAmp = [maxLAmp; 0];
+            maxRAmp = [maxRAmp; rightAmp];
+            domAmp = [domAmp; rightAmp];
+            xloc = [xloc; r];
+            tloc = [tloc; c];
+
+            [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smRIC,2));
+            [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfprom');
+            [pk2,locs2,w2] = findpeaks(smRIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+            if size(w,2) > size(w2,2)
+                [m,n] = size(w2);
+                zw2 = zeros(size(w));
+                zw2(1:n) = w2;
+                w2 = zw2;
+            end
+            w(w > w2) = w2(w > w2);
             index = find(pks == rightAmp);
-            hwx = [hwx; w(index)];
+            hwt = [hwt; w(index)];
+
+            if numPeaks(end) == 1 && (xloc(end) > 25 && xloc(end) < 65);
+                [pks,locs,w] = findpeaks(smRIC(:,c),'WidthReference','halfheight');
+                index = find(pks == rightAmp);
+                hwx = [hwx; w(index)];
+            else
+                hwx = [hwx; NaN];
+            end   
         else
-            hwx = [hwx; NaN];
-        end   
+            rightEvents(rightEvents == i) = 0;
+            disp('Right event rejected');
+        end
     end
+    rightEvents = bwlabel(rightEvents > 0);
     
     %for bi events
     for i=1:max(biEvents)
@@ -175,6 +196,12 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
         [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smIC,2));
         [pks,locs,w] = findpeaks(smIC(xloc(end),windowStart:windowEnd),'WidthReference','halfprom');
         [pk2,locs2,w2] = findpeaks(smIC(xloc(end),windowStart:windowEnd),'WidthReference','halfheight');
+        if size(w,2) > size(w2,2)
+                [m,n] = size(w2);
+                zw2 = zeros(size(w));
+                zw2(1:n) = w2;
+                w2 = zw2;
+            end
         w(w > w2) = w2(w > w2);
         index = find(pks == domAmp(end));
         hwt = [hwt; w(index)];
@@ -187,7 +214,9 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
             hwx = [hwx; NaN];
         end   
     end
-     
+    
+    totalEvents = max(rightEvents) + max(leftEvents) + max(biEvents);
+    eventLabel = [1:1:totalEvents]';
     eventStat = table(eventLabel, eventClassification, leftOrRightDom, numPeaks, domAmp, maxLAmp, maxRAmp,xloc, tloc, hwt, hwx);
 end
 
@@ -225,24 +254,31 @@ function [leftEvents, biEvents, rightEvents] = eventCoordination(smLIC, smRIC, l
     leftEvents = (leftLabel - (500*biEvents)) > 0;
     rightEvents = (rightLabel - (500*biEvents)) > 0;
     
-    function filt = filtEvents(events)
-        for i=1:max(events)
-            indices = find(event == i);
-            if(size(indices,1) < 3)
-                events(indices) = 0;
-            end
-       
-        end
- 
-    end
-
-    
+   
     leftEvents = bwlabel(leftEvents);
+    LE1 = max(leftEvents);
     rightEvents = bwlabel(rightEvents);
     biEvents = bwlabel(biEvents);
+    leftEvents = bwlabel(filtEvents(leftEvents));
+    LE2 = max(leftEvents);
+    disp(['Left Events ' num2str(LE1) ' ' num2str(LE2)]);
+    rightEvents = bwlabel(filtEvents(rightEvents));
+    biEvents = bwlabel(filtEvents(biEvents));
     %figure;
     %imagesc([smLIC' leftEvents' biEvents' rightEvents' smRIC]);
+     
+end
+
+function filt = filtEvents(events)
+    max(events)
+    for i=1:max(events)
+        indices = find(events == i)';
+        if(size(indices,1) < 3)
+            events(indices) = 0;
+        end
+    end
     
+    filt = events;
 end
 
 
@@ -276,9 +312,7 @@ function [eventStats] = analyzeEvents(smIC, peaksBinary)
             windowStart = startTime - windowSize;
             windowEnd = endTime + windowSize;
         end
-        
-        %[pks, locs, w] = 
-        %findpeaks(smIC(r,windowStart:windowEnd),'Annotate','extents','WidthReference','halfheight');
+       
         [pks,locs,w] = findpeaks(smIC(row,windowStart:windowEnd),'WidthReference','halfheight');
         index = find(pks == maxEvents(i));
         halfwidths = [halfwidths; w(index)];
@@ -342,7 +376,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
-    caxis([0 80]);
+    caxis([0 600]);
     xlim([0 125]);
     ylim([000 6000]);
     hold on; 
@@ -355,7 +389,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.58 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smRIC');
-    caxis([0 80]);
+    caxis([0 600]);
     xlim([0 125]);
     ylim([0000 6000]);
     hold on; 

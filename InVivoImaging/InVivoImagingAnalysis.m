@@ -1,7 +1,7 @@
 % load file
-cd 'C:\Users\Bergles Lab\Desktop'
-% cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
- [fn path] = uigetfile();
+ cd 'C:\Users\Bergles Lab\Desktop'
+ cd 'M:\Bergles Lab Data\Projects\In vivo imaging';
+ [fn path] = uigetfile('*.tif');
  movie = loadTif([path fn],32);
  [LICmov, RICmov] = ROIselection(movie);
 % 
@@ -26,5 +26,5 @@ plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
 % imagesc(conv'*40);
 %savefile = 'ICmovs.mat';
 %save([path savefile],'LICmov','RICmov'); 
- savefile = 'ICmovs_peaks.mat';
- save([path savefile],'LICmov','RICmov','smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
+savefile = 'ICmovs_peaks.mat';
+save([path savefile],'LICmov','RICmov','smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
