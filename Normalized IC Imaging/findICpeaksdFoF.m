@@ -73,7 +73,7 @@ function [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,analysisName,plotFl
     disp(['Mean LIC amplitude: ', num2str(meanL)]);
     stats = table(totLpks, totRpks, totMatchedPks, meanL, meanR, Ldom/totPks, totLpks+totRpks-totMatchedPks, Ldom, Rdom);
     assignin('base','stats1',stats);
-    save([filePath,['ICinfo16_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath');
+    save([filePath,['ICinfo16_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath','stats');
 
 end
 
