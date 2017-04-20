@@ -1,8 +1,8 @@
-% [~,str] = dos('dir "M:\Bergles Lab Data\RecordingsAndImaging\*.czi" /s');
-% str tkn= strrep(str,',','');
-% rgx = '(\d{2}/\d{2}/\d{4})\s{2}(\d{2}):(\d{2})\s([AP]M)\s*\d*\s*Experiment-(\d*)';
-% tkn = regexp(str,rgx,'tokens');
-% InVivo.dates = tkn{:,1};
+[~,str] = dos('dir "M:\Bergles Lab Data\RecordingsAndImaging\*.czi" /s');
+str= strrep(str,',','');
+rgx = '(\d{2}/\d{2}/\d{4})\s{2}(\d{2}):(\d{2})\s([AP]M)\s*\d*\s*Experiment-(\d*)';
+tkn = regexp(str,rgx,'tokens');
+%InVivo.dates = tkn{:,1};
 %cell2m
 
 date = [];
@@ -27,7 +27,7 @@ end
 %dirToCheck = {'
 %listing = dir('M:\Bergles Lab Data\Projects\In vivo imaging\*.m')
 
-wt_paths = {'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experiment-265-P7_Wildtype_PCA\ICinfo16_dFoF.mat';
+paths = {'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experiment-265-P7_Wildtype_PCA\ICinfo16_dFoF.mat';
             'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experiment-314-P6_Wildtype_PCA\ICinfo16_dFoF.mat';
             'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experiment-330_processed\ICinfo16_dFoF.mat';
             'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experiment-337-ds_PCApro\ICinfo16_dFoF.mat';
@@ -37,32 +37,26 @@ wt_paths = {'M:\Bergles Lab Data\Projects\In vivo imaging\WILDTYPE\DUP_Experimen
             };
 
 file_activity=[];
+type = {};
+
 for i=1:size(paths,1)
     load(paths{i});
     disp(paths{i});
     rgx = 'Experiment-(\d*)';
-    tkn = regexp(rmSlash,rgx,'tokens');
-    tkn = str2num(tkn);
-    rgx = 'imagin
+    tkn = regexp(paths{i},rgx,'tokens');
+    tkn = str2num(tkn{1}{1});
+    rgx = 'imaging\(\w*)';
+    tkn2 = regexp(paths{i},rgx,'tokens');
     
     [filePath name ext] = fileparts(paths{i});
-    [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,'PCA',1);
-    file_activity(i,1:2)=[tkn stats(1,7)];
+    [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,'PCA',0);
+    file_activity(i,1:2)=[tkn stats{1,7}]
+    type{i} = {type; tkn2}
 end
 
-for i = 1:m
-         load(paths{i});
-         disp(paths{i});
-         [filePath name ext] = fileparts(paths{i});
-         if bits == 8
-             [stats, pkData] = findICpeaks(ICsignal,[filePath '\'],'PCA',1);
-         elseif bits == 16
-             [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,'PCA',1);
-         end
-         stat = [stat; stats];
-         rpks = [rpks; pkData((pkData(:,7)==2),4)];
-         lpks = [lpks; pkData((pkData(:,7)==1),2)];
-     end
-  
+for i=1:size(file_activity,1)
+  expNum = file_activity(i,1);
+  ind = find(experiment == expNum);
+  file_activity(i,3) = time(ind);
 
- 
+end
