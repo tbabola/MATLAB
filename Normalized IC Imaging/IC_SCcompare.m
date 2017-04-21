@@ -1,24 +1,26 @@
 %%Compare IC activity to SC activity (integral)
 % 
-% [fn dname] = uigetfile();
-% [pathstr, name, ext] = fileparts([dname fn]);
-% 
-% switch ext
-%     case '.czi'
-%         bf = bfopen([dname fn]);
-%         tic;
-%         [m,n] = size(bf{1}{1});
-%         t = size(bf{1},1);
-%         img = zeros(m,n,t);
-%         for i=1:t
-%             img(:,:,i) = bf{1}{i};
-%         end
-%         clear bf;
-%         img = flipud(img);
-%         toc;
-%     case '.tif'
-% end
-% disp('Normalizing movie');
+%[fn dname] = uigetfile();
+%[pathstr, name, ext] = fileparts([dname fn]);
+
+switch ext
+    case '.czi'
+        bf = bfopen([dname fn]);
+        tic;
+        [m,n] = size(bf{1}{1});
+        t = size(bf{1},1);
+        img = zeros(m,n,t);
+        for i=1:t
+            img(:,:,i) = bf{1}{i};
+        end
+        clear bf;
+        img = flipud(img);
+        toc;
+    case '.tif'
+        img = loadTif([dname fn],16);
+end
+
+disp('Normalizing movie');
  [dFoF, Fo] = normalizeImg(img,10);
 
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
@@ -40,7 +42,6 @@ LSC = squeeze(mean(mean(LSC,2,'omitnan'),'omitnan'));
 RSC = dFoF.*LSCmask;
 RSC(RSC==0)=NaN;
 RSC = squeeze(mean(mean(RSC,2,'omitnan'),'omitnan'));
-
 
 
 
