@@ -1,7 +1,7 @@
 %%Compare IC activity to SC activity (integral)
 % 
-%[fn dname] = uigetfile();
-%[pathstr, name, ext] = fileparts([dname fn]);
+[fn dname] = uigetfile(dname);
+[pathstr, name, ext] = fileparts([dname fn]);
 
 switch ext
     case '.czi'
@@ -9,7 +9,7 @@ switch ext
         tic;
         [m,n] = size(bf{1}{1});
         t = size(bf{1},1);
-        img = zeros(m,n,t);
+        img = zeros(m,n,t,'int16');
         for i=1:t
             img(:,:,i) = bf{1}{i};
         end
@@ -26,10 +26,12 @@ disp('Normalizing movie');
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
 disp('Masks created. Normalizing image.');
 
-
+tic;
 LIC = dFoF.*LICmask;
 LIC(LIC==0)=NaN;
 LIC = squeeze(mean(mean(LIC,2,'omitnan'),'omitnan'));
+toc;
+pause;
 
 RIC = dFoF.*RICmask;
 RIC(RIC==0)=NaN;

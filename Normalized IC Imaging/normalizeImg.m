@@ -28,14 +28,12 @@ function [imgBC] = bleachCorrect(img, sampRate)
     time = ([1:1:T]./sampRate)';
 
     B = fitExponentialWithOffset(time,meanIntensity);
-    imgBC = zeros(size(img),'uint16');
+    imgBC = zeros(size(img),'int16');
     for i=1:T
         ratio = calcExponentialOffset(B, 0.0) / calcExponentialOffset(B, i/sampRate);
         ratioplot(i) = ratio;
         imgBC(:,:,i) = img(:,:,i)*ratio;
     end
-    
-    imgBC = uint16(imgBC);
 end
 
 function [eo] = calcExponentialOffset(B, x)
