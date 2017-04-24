@@ -1,54 +1,50 @@
 %%Compare IC activity to SC activity (integral)
-% 
-[fn dname] = uigetfile(dname);
-[pathstr, name, ext] = fileparts([dname fn]);
-
-switch ext
-    case '.czi'
-        bf = bfopen([dname fn]);
-        tic;
-        [m,n] = size(bf{1}{1});
-        t = size(bf{1},1);
-        img = zeros(m,n,t,'int16');
-        for i=1:t
-            img(:,:,i) = bf{1}{i};
-        end
-        clear bf;
-        img = flipud(img);
-        toc;
-    case '.tif'
-        img = loadTif([dname fn],16);
-end
-
-disp('Normalizing movie');
- [dFoF, Fo] = normalizeImg(img,10);
+%%
+% [fn dname] = uigetfile();
+% [pathstr, name, ext] = fileparts([dname fn]);
+% tic;
+% switch ext
+%     case '.czi'
+%         bf = bfopen([dname fn]);
+%         tic;
+%         [m,n] = size(bf{1}{1});
+%         t = size(bf{1},1);
+%         img = zeros(m,n,t,'int16');
+%         for i=1:t
+%             img(:,:,i) = bf{1}{i};
+%         end
+%         clear bf;
+%         img = flipud(img);
+%         toc;
+%     case '.tif'
+%         img = loadTif([dname fn],16);
+% end
+% toc;
+% disp('Normalizing movie');
+% [dFoF, Fo] = normalizeImg(img,10);
 
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
 disp('Masks created. Normalizing image.');
 
+
+%This is much faster than multiplying dFoF by ROImasks due to memory
+%constraints
 tic;
-LIC = dFoF.*LICmask;
-LIC(LIC==0)=NaN;
-LIC = squeeze(mean(mean(LIC,2,'omitnan'),'omitnan'));
+for i=1:size(dFoF,3)
+    singimg = dFoF(:,:,i);
+    LICind = find(LICmask);
+    LIC(i) = mean(singimg(LICind));
+    
+    RICind = find(RICmask);
+    RIC(i) = mean(singimg(RICind));
+    
+    RSCind = find(RSCmask);
+    RSC(i) = mean(singimg(RSCind));
+    
+    LSCind = find(LSCmask);
+    LSC(i) = mean(singimg(LSCind));
+end
 toc;
-pause;
-
-RIC = dFoF.*RICmask;
-RIC(RIC==0)=NaN;
-RIC = squeeze(mean(mean(RIC,2,'omitnan'),'omitnan'));
-
-LSC = dFoF.*LSCmask;
-LSC(LSC==0)=NaN;
-LSC = squeeze(mean(mean(LSC,2,'omitnan'),'omitnan'));
-
-RSC = dFoF.*LSCmask;
-RSC(RSC==0)=NaN;
-RSC = squeeze(mean(mean(RSC,2,'omitnan'),'omitnan'));
-
-
-
-
-
 
 function [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(X)
     Xmean = mean(X,3);
