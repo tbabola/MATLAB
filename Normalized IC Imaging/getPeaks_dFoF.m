@@ -15,8 +15,6 @@ function [peaksBinary] = getPeaks_dFoF(smIC, leftOrRight, cutoff)
     prominenceCutoff = cutoff;
     peaks = clearNonprominentEvents(peaks, smIC, prominenceCutoff);
     
-    
-    
     %binarize peaks
     peaksBinary = peaks > 0; %create binary version of peaks
     peaksBinary(1:15,:) = 0;

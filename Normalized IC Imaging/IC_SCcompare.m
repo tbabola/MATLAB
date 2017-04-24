@@ -1,27 +1,27 @@
 %%Compare IC activity to SC activity (integral)
 %%
-% [fn dname] = uigetfile();
-% [pathstr, name, ext] = fileparts([dname fn]);
-% tic;
-% switch ext
-%     case '.czi'
-%         bf = bfopen([dname fn]);
-%         tic;
-%         [m,n] = size(bf{1}{1});
-%         t = size(bf{1},1);
-%         img = zeros(m,n,t,'int16');
-%         for i=1:t
-%             img(:,:,i) = bf{1}{i};
-%         end
-%         clear bf;
-%         img = flipud(img);
-%         toc;
-%     case '.tif'
-%         img = loadTif([dname fn],16);
-% end
-% toc;
-% disp('Normalizing movie');
-% [dFoF, Fo] = normalizeImg(img,10);
+[fn dname] = uigetfile();
+[pathstr, name, ext] = fileparts([dname fn]);
+tic;
+switch ext
+    case '.czi'
+        bf = bfopen([dname fn]);
+        tic;
+        [m,n] = size(bf{1}{1});
+        t = size(bf{1},1);
+        img = zeros(m,n,t,'int16');
+        for i=1:t
+            img(:,:,i) = bf{1}{i};
+        end
+        clear bf;
+        img = flipud(img);
+        toc;
+    case '.tif'
+        img = loadTif([dname fn],16);
+end
+toc;
+disp('Normalizing movie');
+[dFoF, Fo] = normalizeImg(img,10);
 
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
 disp('Masks created. Normalizing image.');
@@ -30,6 +30,12 @@ disp('Masks created. Normalizing image.');
 %This is much faster than multiplying dFoF by ROImasks due to memory
 %constraints
 tic;
+LIC = [];
+RIC = [];
+LSC = [];
+RSC = [];
+ctx = [];
+
 for i=1:size(dFoF,3)
     singimg = dFoF(:,:,i);
     LICind = find(LICmask);
@@ -43,8 +49,42 @@ for i=1:size(dFoF,3)
     
     LSCind = find(LSCmask);
     LSC(i) = mean(singimg(LSCind));
+    
+    ctxind = find(ctxmask);
+    ctx(i) = mean(singimg(ctxind));
 end
 toc;
+
+LIC = LIC';
+RIC = RIC';
+LSC = LSC';
+RSC = RSC';
+ctx = ctx';
+
+[stats, pkData] = findICpeaksdFoF(double([LIC RIC ctx]), dname , 'activitycorr', 1);
+
+time = [1:1:size(LIC,1)];
+time = (time/10)';
+LSC_bl = msbackadj(time,LSC);
+RSC_bl = msbackadj(time,RSC);
+LIC_bl = msbackadj(time,LIC);
+RIC_bl = msbackadj(time,RIC);
+ctx_bl = msbackadj(time,ctx);
+
+disp('Ctx Integral')     
+ctx_int = trapz(ctx_bl)
+LIC_int = trapz(LIC_bl)
+RIC_int = trapz(RIC_bl)
+RSC_int = trapz(RSC_bl)
+LSC_int = trapz(LSC_bl)
+ICfreq = stats{1,7};
+
+stats(1,7)
+tbl_stats = table(ctx_int, LIC_int, RIC_int, RSC_int, LSC_int, ICfreq);
+save([dname 'integrals.mat'],'tbl_stats');
+
+groupWT = [groupWT; trapz(ctx_bl) trapz(LIC_bl) trapz(RIC_bl) trapz(RSC_bl) trapz(LSC_bl) stats{1,7}];
+
 
 function [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(X)
     Xmean = mean(X,3);
@@ -68,8 +108,7 @@ function [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(X)
     
     RSCmask = roipoly();
     
-    ctxmask = zeros(m,n);
-    ctxmask(1:20,:) = 1;
+    ctxmask = roipoly();
 end
 
 

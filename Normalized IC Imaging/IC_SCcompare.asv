@@ -1,8 +1,8 @@
 %%Compare IC activity to SC activity (integral)
-% 
-[fn dname] = uigetfile();
+%%
+[fn dname] = uigetfile(dname);
 [pathstr, name, ext] = fileparts([dname fn]);
-
+tic;
 switch ext
     case '.czi'
         bf = bfopen([dname fn]);
@@ -19,29 +19,63 @@ switch ext
     case '.tif'
         img = loadTif([dname fn],16);
 end
-
+toc;
 disp('Normalizing movie');
- [dFoF, Fo] = normalizeImg(img,10);
+[dFoF, Fo] = normalizeImg(img,10);
 
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
 disp('Masks created. Normalizing image.');
 
-%This is much faster than 
+
+%This is much faster than multiplying dFoF by ROImasks due to memory
+%constraints
+tic;
 for i=1:size(dFoF,3)
-    img = dFoF(:,:,i);
+    singimg = dFoF(:,:,i);
     LICind = find(LICmask);
-    LIC(i) = mean(img(LICind));
+    LIC(i) = mean(singimg(LICind));
     
     RICind = find(RICmask);
-    RIC(i) = mean(img(RICind));
+    RIC(i) = mean(singimg(RICind));
     
     RSCind = find(RSCmask);
-    RSC(i) = mean(img(RSCind));
+    RSC(i) = mean(singimg(RSCind));
     
     LSCind = find(LSCmask);
-    LSC(i) = mean(img(LSCind));
+    LSC(i) = mean(singimg(LSCind));
+    
+    ctxind = find(ctxmask);
+    ctx(i) = mean(singimg(ctxind));
 end
 toc;
+LIC = LIC';
+RIC = RIC';
+ctx = ctx';
+LSC = LSC';
+RSC = RSC';
+
+[stats, pkData] = findICpeaksdFoF(double([LIC RIC ctx]), dname , 'activitycorr', 1);
+
+time = [1:1:size(LIC,1)]/10;
+time = time';
+LSC_bl = msbackadj(time,LSC);
+RSC_bl = msbackadj(time,RSC);
+LIC_bl = msbackadj(time,LIC);
+RIC_bl = msbackadj(time,RIC);
+ctx_bl = msbackadj(time,ctx);
+
+disp('Ctx Integral')     
+ctx_int = trapz(ctx_bl)
+LIC_int = trapz(LIC_bl)
+RIC_int = trapz(RIC_bl)
+RSC_int = trapz(RSC_bl)
+LSC_int = trapz(LSC_bl)
+ICfreq = stats{1,7};
+
+stats(1,7)
+tbl_stats = table(ctx_int, LIC_int, RIC_int, RSC_int, LSC_int, ICfreq);
+
+groupWT = [groupWT; trapz(ctx_bl) trapz(LIC_bl) trapz(RIC_bl) trapz(RSC_bl) trapz(LSC_bl) stats{1,7}];
 
 
 function [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(X)
@@ -66,8 +100,7 @@ function [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(X)
     
     RSCmask = roipoly();
     
-    ctxmask = zeros(m,n);
-    ctxmask(1:20,:) = 1;
+    ctxmask = roipoly();
 end
 
 
