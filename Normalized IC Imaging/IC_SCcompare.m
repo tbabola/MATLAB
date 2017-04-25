@@ -24,7 +24,7 @@ disp('Normalizing movie');
 [dFoF, Fo] = normalizeImg(img,10);
 
 [LICmask, RICmask, LSCmask, RSCmask, ctxmask] = ROIselectionICSC(img);
-disp('Masks created. Normalizing image.');
+disp('Masks created.');
 
 
 %This is much faster than multiplying dFoF by ROImasks due to memory
@@ -81,7 +81,8 @@ ICfreq = stats{1,7};
 
 stats(1,7)
 tbl_stats = table(ctx_int, LIC_int, RIC_int, RSC_int, LSC_int, ICfreq);
-save([dname 'integrals.mat'],'tbl_stats');
+[fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\');
+save([dname 'integrals.mat'],'tbl_stats','ctx','RIC','LIC','LSC','RSC');
 
 groupWT = [groupWT; trapz(ctx_bl) trapz(LIC_bl) trapz(RIC_bl) trapz(RSC_bl) trapz(LSC_bl) stats{1,7}];
 
