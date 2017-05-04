@@ -8,9 +8,9 @@ function [LICmov, RICmov] = ROIselection(movie)
     
     CCW = figure;
     lim = meanRIC(find(meanRIC));
-    lim = median(lim(:),'omitnan') * 2;
+    lim = median(lim(:));
     imagesc(meanRIC);
-    caxis([0 lim]);
+    caxis([0 median(meanLIC)*1.2]);
     RIC = imrect(gca,[0,0,125,100]);
     setResizable(RIC,0);
     wait(RIC);
@@ -21,7 +21,7 @@ function [LICmov, RICmov] = ROIselection(movie)
     %LIC
     CW = figure;
     imagesc(meanLIC);
-    caxis([0 lim]);
+    caxis([0 median(meanLIC)*1.2]);
     LIC = imrect(gca,[0,0,125,100]);
     setResizable(LIC,0);
     wait(LIC);

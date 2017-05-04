@@ -1,7 +1,7 @@
 % load file
  
- [fn path] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
- X = loadTif([path fn],16);
+  [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+ X = loadTif([dname fn],16);
  [m,n,t] = size(X);
  Xreshape = reshape(X,m*n,t)';
  Fo = prctile(Xreshape,10,1);
@@ -24,5 +24,5 @@ smRIC = double(imgaussfilt(meanIC,3));
 plotTimeSeries_dFoF(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
  
 savefile = 'ICmovs_peaks_dFoF.mat';
-save([path savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
-save([path 'Fo.mat'],'X25');
+save([dname savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
+save([dname 'Fo.mat'],'X25');

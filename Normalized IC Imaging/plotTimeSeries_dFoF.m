@@ -77,5 +77,6 @@ function plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat)
      mid(:,:,2) = C(:,:,2);
      figure; imagesc([left mid C]);
     
+    figure;
     
 end
