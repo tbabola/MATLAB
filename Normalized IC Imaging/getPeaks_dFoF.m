@@ -92,20 +92,3 @@ function peaks = clearNonprominentEvents(peaks, signal, prominenceCutoff)
     peaks_space = peaks .* spaceEvents;
     peaks = peaks.* timeEvents .*spaceEvents;
 end
-
-function [left right] = returnWindow(index, windowSize,endIndex)
-    if index - windowSize < 1
-        windowStart = 1;
-        windowEnd = index + windowSize;
-    elseif index + windowSize > endIndex;
-        windowStart = index - windowSize;
-        windowEnd = endIndex;
-    else
-        windowStart = index - windowSize;
-        windowEnd = index + windowSize;
-    end
-    
-    left = windowStart;
-    right = windowEnd;
-end
-

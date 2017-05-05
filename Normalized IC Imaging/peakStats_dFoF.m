@@ -23,9 +23,8 @@ function [ peakStat, eventStat ] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, pe
     %event analysis (more complex)
     LeventStats = analyzeEvents(smLIC,peaksBinaryL);
     ReventStats = analyzeEvents(smRIC, peaksBinaryR);
-    %eventStats = {LeventStats, ReventStats};
-    
-    [leftEvents, biEvents, rightEvents]= eventCoordination(smLIC, smRIC, peaksBinaryL,peaksBinaryR);
+
+    [leftEvents, biEvents, rightEvents]= eventCoordination(peaksBinaryL,peaksBinaryR);
     eventStat = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLIC, peaksBinaryL, peaksBinaryR);
     leftConv = convolvePeaks(peaksBinaryL);
     rightConv = convolvePeaks(peaksBinaryR);
@@ -220,22 +219,15 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
     eventStat = table(eventLabel, eventClassification, leftOrRightDom, numPeaks, domAmp, maxLAmp, maxRAmp,xloc, tloc, hwt, hwx);
 end
 
-
-
-function [leftEvents, biEvents, rightEvents] = eventCoordination(smLIC, smRIC, leftBinary, rightBinary)
+function [leftEvents, biEvents, rightEvents] = eventCoordination(leftBinary, rightBinary)
     %initialize variables
     leftLabel = bwlabel(convolvePeaks(leftBinary));
     leftEventNum = max(leftLabel);
     rightLabel = bwlabel(convolvePeaks(rightBinary));
-    rightEventNum = max(rightLabel);
     
     leftEvents = zeros(size(leftLabel));
     biEvents = zeros(size(leftLabel));
     rightEvents = zeros(size(leftLabel));
-    eventClassification = {};
-    leftOrRightDom = {};
-
-    startTime = []; %starting time of window of event
    
     for i=1:leftEventNum
         leftIndices = find(leftLabel==i);        
@@ -244,7 +236,7 @@ function [leftEvents, biEvents, rightEvents] = eventCoordination(smLIC, smRIC, l
         if rightEvent
             rightValue = rightLabel(leftIndices);
             rightValue(rightValue == 0) = NaN;
-            rightValue = mode(rightValue);
+            rightValue = mode(rightValue); %%pick the right event with the most overlap in the case of two overlapping events
             rightIndices = find(rightLabel==rightValue);
             biEvents(leftIndices) = 1;
             biEvents(rightIndices) = 1;
@@ -285,12 +277,13 @@ end
 function [eventStats] = analyzeEvents(smIC, peaksBinary)
     %for halfwidths, number of peaks, amplitude
     convPeaks = convolvePeaks(peaksBinary);
-    labels = bwlabel(convPeaks);
-    numEvents = max(labels);
+    labels = bwlabel(convPeaks); %events are labeled
+    numEvents = max(labels); %number of events
     eventNumber = [1:1:numEvents]';
     totalPeaks = []; %number of peaks in an event
     maxEvents = [];
     halfwidths = [];
+    [m,n] = size(smIC);
     
     for i=1:numEvents
         index = find(labels == i);
@@ -302,16 +295,7 @@ function [eventStats] = analyzeEvents(smIC, peaksBinary)
         [row,col] = ind2sub(size(eventArea),find(eventArea == maxEvents(i),1));
 
         windowSize = 300;
-        if startTime - windowSize < 1
-            windowStart = 1;
-            windowEnd = index + windowSize;
-        elseif endTime + windowSize > size(smIC,2)
-            windowStart = index - windowSize;
-            windowEnd = size(smIC,2);
-        else
-            windowStart = startTime - windowSize;
-            windowEnd = endTime + windowSize;
-        end
+        [windowStart, windowEnd] = getWindow(startTime, windowSize, n)
        
         [pks,locs,w] = findpeaks(smIC(row,windowStart:windowEnd),'WidthReference','halfheight');
         index = find(pks == maxEvents(i));
@@ -416,105 +400,5 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
      xlim([0 125]);
      ylim([0 30]);
      set(gca,'XColor','white');
-     set(gca,'YTick',[],'YColor','white');
-    
-    
-    
+     set(gca,'YTick',[],'YColor','white');  
 end
-
-function [ leftEvents, biEvents, rightEvents, test ] = eventCoordination2(smLIC, smRIC, leftBinary, rightBinary)
-    %initialize variables
-    leftLabel = bwlabel(convolvePeaks(leftBinary));
-    leftEventNum = max(leftLabel);
-    rightLabel = bwlabel(convolvePeaks(rightBinary));
-    rightEventNum = max(rightLabel);
-    
-    leftBinaryVal = smLIC .* leftBinary; %gives actual value for peaks
-    rightBinaryVal = smRIC .* rightBinary;
-    leftEvents = zeros(size(leftLabel));
-    biEvents = zeros(size(leftLabel));
-    rightEvents = zeros(size(leftLabel));
-    eventClassification = {};
-    leftOrRightDom = {};
-    leftAmplitude = [];
-    rightAmplitude = [];
-    amplitudePercentage = [];
-    startTime = []; %starting time of window of event
-   
-    for i=1:leftEventNum
-        leftIndices = find(leftLabel==i);        
-        rightEvent = size(find(rightLabel(leftIndices)),2) > 1;
-        
-        if rightEvent
-            rightValue = max(rightLabel(leftIndices));
-            rightIndices = find(rightLabel==rightValue);
-            biEvents(leftIndices) = 1;
-            biEvents(rightIndices) = 1;
-            
-            %get amplitude data
-            eventClassification = [eventClassification; 'B'];
-            leftAmp = max(max(leftBinaryVal(:,leftIndices)));
-            rightAmp = max(max(rightBinaryVal(:,rightIndices)));
-            if leftAmp > rightAmp
-                leftOrRightDom = [leftOrRightDom; 'Left'];
-            else
-                leftOrRightDom = [leftOrRightDom; 'Right'];
-            end
-            
-            leftAmplitude = [leftAmplitude; leftAmp];
-            rightAmplitude = [rightAmplitude; rightAmp];
-            startTime = [startTime; min([leftIndices rightIndices])];
-            
-        end
-    end
-    
-    %get percentage values of amplitudes
-    amplitudePercentage = zeros(size(leftAmplitude,1),1);
-    leftDom = find(strcmp(leftOrRightDom,'Left'));
-    rightDom = find(strcmp(leftOrRightDom,'Right'));
-    amplitudePercentage(leftDom) = (rightAmplitude(leftDom) ./ leftAmplitude(leftDom)) * 100;
-    amplitudePercentage(rightDom) = (leftAmplitude(rightDom) ./ rightAmplitude(rightDom)) * 100;
-    
-
-    leftEvents = (leftLabel - (500*biEvents)) > 0;
-    leftLabel = bwlabel(leftEvents);
-    for i=1:max(leftLabel)
-        indices = find(leftLabel == i);
-        leftAmp = max(max(leftBinaryVal(:,indices)));
-        
-        eventClassification = [eventClassification; 'Left'];
-        leftOrRightDom = [leftOrRightDom; 'Left'];
-        leftAmplitude = [leftAmplitude; leftAmp];
-        rightAmplitude = [rightAmplitude; 0];
-        amplitudePercentage = [amplitudePercentage; 100];
-        startTime = [startTime; min(indices)];
-    end
-    
-    
-    rightEvents = (rightLabel - (500*biEvents)) > 0;
-    rightLabel = bwlabel(rightEvents);
-    for i=1:max(rightLabel)
-        indices = find(rightLabel == i)
-        rightAmp = max(max(rightBinaryVal(:,indices)));
-        
-        eventClassification = [eventClassification; 'Right'];
-        leftOrRightDom = [leftOrRightDom; 'Right'];
-        leftAmplitude = [leftAmplitude; 0];
-        rightAmplitude = [rightAmplitude; rightAmp];
-        amplitudePercentage = [amplitudePercentage; 100];
-        startTime = [startTime; min(indices)];
-    end
-
-    test = table(startTime, eventClassification,leftOrRightDom,leftAmplitude,rightAmplitude,amplitudePercentage);
-    test = sortrows(test);
-    rightDomIndices = find(strcmp(test.leftOrRightDom,'Right')&strcmp(test.eventClassification,'B'));
-    leftDomIndices = find(strcmp(test.leftOrRightDom,'Left')&strcmp(test.eventClassification,'B'));
-    
-    figure;
-    plot(test.startTime(rightDomIndices),test.amplitudePercentage(rightDomIndices),'o');
-    hold on;
-    plot(test.startTime(leftDomIndices),test.amplitudePercentage(leftDomIndices),'o');
-    
-end
-
-

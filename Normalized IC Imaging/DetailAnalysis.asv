@@ -16,20 +16,7 @@ smRIC = double(imgaussfilt(meanIC,3));
 
 %%remove background transients from signal
 top = dFoF(1:20,:,:); %picks area at top of image
-top = squeeze(mean(mean(top),2));
-mid = dFoF(60:80,:,:);
-mid = squeeze(mean(mean(mid),2));
-diff = top - mid;
-diff(diff < 0) = 0;
-[pks,locs,w]=findpeaks(diff,'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
-
-[m] = size(locs,1);
-flash = zeros(size(top));
-for i=1:m
-    ww = round(w(i));
-    wloc = locs(i);
-    flash(wloc-ww:wloc+ww) = 1;
-end
+top = squeeze(mean(mean(top),2))
 
 %%
 %LIC & RIC
