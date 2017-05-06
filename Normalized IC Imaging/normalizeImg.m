@@ -1,4 +1,4 @@
-function [dFoF, Fo] = normalizeImg(img, percentile)
+function [dFoF, Fo] = normalizeImg(img, percentile, bleachCorrect)
 %normalizeImg Normalizes image based on percentile chosen after bleach correction. 
 %   On a pixel by pixel basis, Fo is created by taking the pixel value at
 %   the xth percentile. This is subtracted off of the original image; the
@@ -6,16 +6,18 @@ function [dFoF, Fo] = normalizeImg(img, percentile)
 
     sampRate = 10; %sampling rate in Hz
     [m,n,T] = size(img);
-    imgBC = bleachCorrect(img,sampRate);
-    clear img;
-    disp('Bleach correction finished. Subtracting baseline...');
+    
+    if bleachCorrect
+     img = bleachCorrect(img,sampRate);
+     disp('Bleach correction finished. Subtracting baseline...');
+    end
     
     %Normalize by taking Xth percentile
-    Xreshape = reshape(imgBC,m*n,T)';
+    Xreshape = reshape(img,m*n,T)';
     Fo = prctile(Xreshape,percentile,1);
     Fo = reshape(Fo',m,n);
 
-    dFoF = single(imgBC - Fo) ./ single(Fo);
+    dFoF = single(img - Fo) ./ single(Fo);
 end
 
 function [imgBC] = bleachCorrect(img, sampRate)
