@@ -6,23 +6,18 @@ function [regMov] = registerMovie(movie)
 dataType = whos('movie');
 regMov = zeros(m,n,T,dataType.class);
 
-Xreshape = reshape(movie,m*n,T)';
-Fo = prctile(Xreshape,10,1);
-percentImg = reshape(Fo',m,n);
-avgImg = squeeze(mean(movie,3));
-stdImg = squeeze(std(single(movie),0,3));
-thrImg = avgImg + 10 * stdImg;
 [optimizer, metric] = imregconfig('monomodal');
+optimizer.RelaxationFactor = 0.25;
 
 fixed = movie(:,:,round(T/2));
-tic;
+
 parfor i=1:T
-    moving = movie(:,:,i);
-    thrMoving = moving;
-    thrMoving(moving > thrImg) = percentImg(moving > thrImg);
-    tform = imregtform(thrMoving,fixed,'translation',optimizer,metric);
-    regMov(:,:,i) = imwarp(moving,tform);
+   moving = movie(:,:,i);
+   regMov(:,:,i) = imregister(moving,fixed,'translation',optimizer,metric);
 end
-toc;
+
 end
+
+
+
 

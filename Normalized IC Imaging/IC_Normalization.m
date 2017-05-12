@@ -3,7 +3,7 @@
 X = loadTif([dname fname],16);
 [m,n,t] = size(X);
 
-[LICmask, RICmask, ctxmask] = getROImasks(X);
+
 
 %% get 10th percentiles
 Xreshape = reshape(X,m*n,t)';
@@ -13,6 +13,7 @@ X25 = reshape(Fo',m,n);
 %%get Fo and display it
 
 %% Fav - Fo ./Fo
+[LICmask, RICmask, ctxmask] = getROImasks(X);
 dFoF = double(X - X25) ./ double(X25);
 LICsignal = dFoF.*LICmask;
 LICsignal(LICsignal == 0) = NaN;

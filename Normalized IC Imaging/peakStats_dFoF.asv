@@ -127,7 +127,7 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
             domAmp = [domAmp; leftAmp];
             xloc = [xloc; r];
             tloc = [tloc; c];
-            integral = [integral; trapz(smLIC(:,c))];
+            integral = [integral; trapz(
 
             [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smLIC,2));
             [pks,locs,w] = findpeaks(smLIC(r,windowStart:windowEnd),'WidthReference','halfprom');
@@ -173,7 +173,6 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
             domAmp = [domAmp; rightAmp];
             xloc = [xloc; r];
             tloc = [tloc; c];
-            integral = [integral; trapz(smRIC(:,c))];
 
             [windowStart, windowEnd] = getWindow(indices(1), windowSize, size(smRIC,2));
             [pks,locs,w] = findpeaks(smRIC(r,windowStart:windowEnd),'WidthReference','halfprom');
@@ -221,7 +220,6 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
           numPeaks = [numPeaks; size(find(leftBinaryVal(:,indices)),1)];
           xloc = [xloc; lr];
           tloc = [tloc; lc];
-          integral = [integral; trapz(smLIC(:,lc))];
           smIC = smLIC;
           domAmp = [domAmp; leftAmp];
           leftInd = 60;
@@ -231,7 +229,6 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
            numPeaks = [numPeaks; size(find(rightBinaryVal(:,indices)),1)];
            xloc = [xloc; rr];
            tloc = [tloc; rc];
-           integral = [integral; trapz(smLIC(:,rc))];
            smIC = smRIC;
            domAmp = [domAmp; rightAmp];
            leftInd = 25;
@@ -262,7 +259,7 @@ function [eventStat] = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLI
     
     totalEvents = max(rightEvents) + max(leftEvents) + max(biEvents);
     eventLabel = [1:1:totalEvents]';
-    eventStat = table(eventLabel, eventClassification, leftOrRightDom, numPeaks, domAmp, maxLAmp, maxRAmp,xloc, tloc, hwt, hwx, integral);
+    eventStat = table(eventLabel, eventClassification, leftOrRightDom, numPeaks, domAmp, maxLAmp, maxRAmp,xloc, tloc, hwt, hwx);
 end
 
 function filt = filtEvents(events)

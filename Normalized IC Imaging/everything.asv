@@ -1,13 +1,33 @@
-% load file
-%  
- [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
-   X = loadTif([dname fn],16);
-   [m,n,t] = size(X);
-   Xreshape = reshape(X,m*n,t)';
-   Fo = prctile(Xreshape,10,1);
-   X25 = reshape(Fo',m,n);
-   dFoF = double(X - X25) ./ double(X25);
-%  
+% load file 
+  [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+  X = loadTif([dname fn],16);
+  [m,n,t] = size(X);
+  
+  %register image
+  regMov = registerMovie(X);
+ h = figure('Position',[250 250 800 250]);
+ Xmean = mean(regMov,3);
+ h_im = imagesc(Xmean);
+ IC = imrect(gca,[0,0,512,150]);
+ setResizable(IC,0);
+ addNewPositionCallback(IC,@(p) title(mat2str(p,3)));
+ fcn = makeConstrainToRectFcn('imrect',get(gca,'XLim'),get(gca,'YLim'));
+ setPositionConstraintFcn(IC,fcn); 
+ wait(IC);
+ ICmask = createMask(IC, h_im);
+ 
+ temp_img = zeros(150,512,'int16');
+ for i=1:t
+     curr = regMov(:,:,i);
+     temp_img(:,:,i) = reshape(curr(ICmask),150,512);
+ end
+ 
+
+ [dFoF,Fo,bcImg] = normalizeImg(temp_img,10,1);
+ savedname = uigetdir();
+ writeTif(bcImg,[savedname '\DUP_' fn],16);
+ 
+%%  
  [LICmov, RICmov] = ROIselection(dFoF);
  meanLIC = squeeze(mean(LICmov,1));
  percentLIC = prctile(meanLIC,30,2);
@@ -19,7 +39,7 @@ top = dFoF(1:20,:,:); %picks area at top of image
 top = squeeze(mean(mean(top),2));
 mid = dFoF(60:80,:,:);
 mid = squeeze(mean(mean(mid),2));
-diff = top - mid;
+diff = double(top - mid);
 diff(diff < 0) = 0;
 [pks,locs,w]=findpeaks(diff,'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
 
@@ -64,3 +84,27 @@ plotTimeSeries_dFoF(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
 savefile = 'ICmovs_peaks_dFoF_remflash.mat';
 save([dname savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
 save([dname 'Fo.mat'],'X25');
+
+%% Fav - Fo ./Fo
+[LICmask, RICmask, ctxmask] = getROImasks(mean(bcImg,3));
+LICsignal = dFoF.*LICmask;
+LICsignal(LICsignal == 0) = NaN;
+LICsignal = squeeze(mean(mean(LICsignal,2,'omitnan'),'omitnan'));
+
+RICsignal = dFoF.*RICmask;
+RICsignal(RICsignal == 0) = NaN;
+RICsignal = squeeze(mean(mean(RICsignal,2,'omitnan'),'omitnan'));
+  
+ctxsignal = dFoF.*ctxmask;
+ctxsignal(ctxsignal == 0) = NaN;
+ctxsignal = squeeze(mean(mean(ctxsignal,2,'omitnan'),'omitnan'));
+
+LICint = double(Fo).*LICmask;
+LICint(LICint == 0) = NaN;
+LICint = mean(mean(LICint,2,'omitnan'),'omitnan');
+RICint = double(Fo).*RICmask;
+RICint(RICint == 0) = NaN;
+RICint = mean(mean(RICint,2,'omitnan'),'omitnan');
+%%
+[stats, pkData] = findICpeaksdFoF([LICsignal RICsignal ctxsignal],dname,'dFoF',1)
+save([savedname '\dFoFvars.mat'], 'LICint', 'RICint', 'Fo');
