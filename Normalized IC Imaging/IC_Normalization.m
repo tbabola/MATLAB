@@ -3,8 +3,6 @@
 X = loadTif([dname fname],16);
 [m,n,t] = size(X);
 
-
-
 %% get 10th percentiles
 Xreshape = reshape(X,m*n,t)';
 Fo = prctile(Xreshape,10,1);
