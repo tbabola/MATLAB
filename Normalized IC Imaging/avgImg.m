@@ -8,7 +8,9 @@ imgSD = std(single(X),0,3);
 savename = ['STD_' fn];
 writeTif(imgSD,[dname savename],32);
 
-%figure; imagesc([std(single(X),0,3);mean(X,3)]); colormap(greenfireblue);caxis([0.01 800]);
+figure; imagesc(imgSD);
+colormap(gfb);
+caxis([0.01 700]);
 
 %% lists
 %%Wildtype
@@ -32,7 +34,6 @@ list = textscan(list, '%s', 'Delimiter', '\n');
 VG3NBQXlist =list{:};
 
 
-
 %%P2ry1 KO bilateral ablation
 [~,list] = system('dir "M:\Bergles Lab Data\Projects\In vivo imaging\P2ry1 KO\STD_*.tif" /S/B');
 list = textscan(list, '%s', 'Delimiter', '\n');
@@ -50,7 +51,7 @@ function graphSTDs(list)
     for i = 1:m
         img = loadTif(list{i},32);
         subplot(m,1,i);
-        imagesc(img); colormap(greenfireblue);
+        imagesc(img); colormap(gfb);
         caxis([0.01 800]);
     end
     

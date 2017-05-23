@@ -23,7 +23,7 @@ function [peakStat, eventStat] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, peak
     [leftEvents, biEvents, rightEvents]= eventCoordination(peaksBinaryL,peaksBinaryR);
     eventStat = eventStats(rightEvents, leftEvents, biEvents, smRIC, smLIC, peaksBinaryL, peaksBinaryR);
     
-    %plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eventStat)
+    plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eventStat)
 end
 
 function [leftEvents, biEvents, rightEvents] = eventCoordination(leftBinary, rightBinary)
@@ -332,7 +332,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
-    caxis([0 600]);
+    caxis([0 0.3]);
     xlim([0 125]);
     ylim([000 6000]);
     hold on; 
@@ -345,7 +345,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.58 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smRIC');
-    caxis([0 600]);
+    caxis([0 0.3]);
     xlim([0 125]);
     ylim([0000 6000]);
     hold on; 
