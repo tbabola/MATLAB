@@ -284,9 +284,10 @@ function graphEvents(pkData, filePath)
         Rpks = pkData((pkData(:,7)==2),4);
         Lpks = pkData((pkData(:,7)==1),2);
         hold off;
-        Rcounts= histcounts(Rpks,[0:.1:.4 100]);
-        Lcounts =histcounts(Lpks,[0:.1:.4 100]);
-        binY = [.05:.1:.45];
+        binLim = [0 0.02:.05:.35 100];
+        Rcounts= histcounts(Rpks,binLim);
+        Lcounts =histcounts(Lpks,binLim);
+        binY = [0 .0450:.05:.35];
         
         figh = figure;
             h=barh(binY,Rcounts,.9);
@@ -295,13 +296,13 @@ function graphEvents(pkData, filePath)
             %barh(Lbins,-Lcounts,.9,'FaceColor',lt_org,'EdgeColor',lt_org);
             h.FaceColor = lt_blue;
             h.EdgeColor = 'none';
-            xlim([-100 100]);
+            xlim([-60 60]);
             %xlim([-50 50]);
             %xticks([-50 -25 0 25 50]);
-            xticks([-100 -50 0 50 100]);
-            xticklabels({'100' '50' '0' '50' '100'});
-            ylim([0 .50]);
-            yticks([0 .25 .50]);
+            xticks([-60 -30 0 30 60]);
+            xticklabels({'60' '30' '0' '30' '60'});
+            ylim([0 .4]);
+            yticks([0 .20 .4]);
             box off;
             figh.Units = 'inches';
             figh.Position = [5 5 1.5 1.0];

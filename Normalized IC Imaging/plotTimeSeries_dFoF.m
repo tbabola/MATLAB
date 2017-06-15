@@ -56,27 +56,27 @@ function plotTimeSeries(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat)
      set(gca,'YTick',[],'YColor','white');
     
      
-     C = imfuse(smLIC',fliplr(smRIC'),'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
-     left = zeros(size(C));
-     left(:,:,1) = C(:,:,1);
-     mid = zeros(size(C));
-     mid(:,:,2) = C(:,:,2);
-     
-     %figure; imagesc([C(:,:,1) C(:,:,2) C]);
-     figure; imagesc([left mid C],[254 255]);
-     
-     thr = 0.05;
-     [m,n] = size(smLIC);
-     LICbin = smLIC > thr;
-     
-     RICbin = smRIC> thr;
-     C = imfuse(LICbin',fliplr(RICbin)','falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
-     left = zeros(size(C));
-     left(:,:,1) = C(:,:,1);
-     mid = zeros(size(C));
-     mid(:,:,2) = C(:,:,2);
-     figure; imagesc([left mid C]);
-    
-    figure;
+%      C = imfuse(smLIC',fliplr(smRIC'),'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+%      left = zeros(size(C));
+%      left(:,:,1) = C(:,:,1);
+%      mid = zeros(size(C));
+%      mid(:,:,2) = C(:,:,2);
+%      
+%      %figure; imagesc([C(:,:,1) C(:,:,2) C]);
+%      figure; imagesc([left mid C],[254 255]);
+%      
+%      thr = 0.05;
+%      [m,n] = size(smLIC);
+%      LICbin = smLIC > thr;
+%      
+%      RICbin = smRIC> thr;
+%      C = imfuse(LICbin',fliplr(RICbin)','falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
+%      left = zeros(size(C));
+%      left(:,:,1) = C(:,:,1);
+%      mid = zeros(size(C));
+%      mid(:,:,2) = C(:,:,2);
+%      figure; imagesc([left mid C]);
+%     
+    %figure;
     
 end

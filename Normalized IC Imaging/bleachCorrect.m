@@ -1,26 +1,3 @@
-function [dFoF, Fo, img] = normalizeImg(img, percentile, bleachCorrectFlag)
-%normalizeImg Normalizes image based on percentile chosen after bleach correction. 
-%   On a pixel by pixel basis, Fo is created by taking the pixel value at
-%   the xth percentile. This is subtracted off of the original image; the
-%   resulting image is then divided by Fo. 
-
-    sampRate = 10; %sampling rate in Hz
-    [m,n,T] = size(img);
-    
-    if bleachCorrectFlag
-     img = bleachCorrect(img,sampRate);
-     disp('Bleach correction finished. Subtracting baseline...');
-    end
-    
-    %Normalize by taking Xth percentile
-    Xreshape = reshape(img,m*n,T)';
-    Fo = prctile(Xreshape,percentile,1);
-    Fo = reshape(Fo',m,n);
-
-    dFoF = (single(img) - single(Fo)) ./ single(Fo);
-    %dFoF = double(img - Fo) ./ double(Fo);
-end
-
 function [imgBC] = bleachCorrect(img, sampRate)
     %%This function is based off of the bleach correction algorithm in 
     %%ImageJ. Bleach Correction by Fitting Exponential Decay function.
@@ -50,3 +27,4 @@ function [B] = fitExponentialWithOffset(x, y)
     
     [B,rnrm] = fminsearch(nrmrsd, B0);
 end
+

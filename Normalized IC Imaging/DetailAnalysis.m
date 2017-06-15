@@ -1,13 +1,10 @@
 % load file
 %  
- [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
-   X = loadTif([dname fn],16);
-   [m,n,t] = size(X);
-   Xreshape = reshape(X,m*n,t)';
-   Fo = prctile(Xreshape,10,1);
-   X25 = reshape(Fo',m,n);
-   dFoF = double(X - X25) ./ double(X25);
-%  
+% [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+%  X = loadTif([dname fn],16);
+%  [m,n,t] = size(X);
+%  [dFoF, Fo] = normalizeImg(X, 10, 1);
+% % %  
  [LICmov, RICmov] = ROIselection(dFoF);
  meanLIC = squeeze(mean(LICmov,1));
  percentLIC = prctile(meanLIC,30,2);
@@ -21,7 +18,7 @@ mid = dFoF(60:80,:,:);
 mid = squeeze(mean(mean(mid),2));
 diff = top - mid;
 diff(diff < 0) = 0;
-[pks,locs,w]=findpeaks(diff,'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
+[pks,locs,w]=findpeaks(double(diff),'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
 
 
 flash = zeros(size(top));
@@ -49,18 +46,18 @@ percentRIC = repmat(percentRIC,1,n);
 percentRIC = imnoise(percentRIC,'gaussian',0,.0001);
 percentRIC = imgaussfilt(percentRIC);
 meanRIC(:,find(flash)) = percentRIC;
-
+% 
 smLIC = double(imgaussfilt(meanLIC,3));
 smRIC = double(imgaussfilt(meanRIC,3));
 
 %%
 %LIC & RIC
-[peaksBinaryL] = getPeaks_dFoF(smLIC,0,0.005);
-[peaksBinaryR] = getPeaks_dFoF(smRIC,1,0.005);
+[peaksBinaryL] = getPeaks_dFoF(smLIC,0,0.01);
+[peaksBinaryR] = getPeaks_dFoF(smRIC,1,0.01);
 
 [peakStat, eventStats] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
 plotTimeSeries_dFoF(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
  
 savefile = 'ICmovs_peaks_dFoF_remflash.mat';
 save([dname savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
-save([dname 'Fo.mat'],'X25');
+save([dname 'Fo.mat'],'Fo');

@@ -1,5 +1,5 @@
 function [groupHistoL,groupHistoR,totalEvents,individualStats] = analGroupDataLR(paths,plotFlag)
-    paths = paths(:,3);
+    %paths = paths(:,3);
     groupHistoL = [];
     groupHistoR = [];
     totalEvents = [];
