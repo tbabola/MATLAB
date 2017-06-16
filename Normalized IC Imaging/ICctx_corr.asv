@@ -1,27 +1,27 @@
 %% load image
- [fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
- [pathstr, name, ext] = fileparts([dname fname]);
- X = loadTif([dname fname],16);
-%X = bleachCorrect(X,10);
-X = normalizeImg(X,10,1);
-[m,n,t] = size(X);
-
-X = flipud(X);
-figure;
-imagesc(X(:,:,1));
-h = imellipse();
-wait(h);
-indices = [];
-indices = find(h.createMask);
-hvc = imellipse();
-wait(hvc);
-hvcindices = [];
-hvcindices = find(hvc.createMask);
-
-hsc = imellipse();
-wait(hsc);
-hscindices = [];
-hscindices = find(hsc.createMask);
+%  [fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
+%  [pathstr, name, ext] = fileparts([dname fname]);
+%  X = loadTif([dname fname],16);
+% %X = bleachCorrect(X,10);
+% X = normalizeImg(X,10,1);
+% [m,n,t] = size(X);
+% 
+% X = flipud(X);
+% figure;
+% imagesc(X(:,:,1));
+% h = imellipse();
+% wait(h);
+% indices = [];
+% indices = find(h.createMask);
+% hvc = imellipse();
+% wait(hvc);
+% hvcindices = [];
+% hvcindices = find(hvc.createMask);
+% 
+% hsc = imellipse();
+% wait(hsc);
+% hscindices = [];
+% hscindices = find(hsc.createMask);
 
 ICsignal = zeros(1,t);
 VCsignal = zeros(1,t);
@@ -60,19 +60,7 @@ figure; plot(lag, corrx,'o'); xlim([-.5 .2])
 [ICpeaks, ACpeaks, VCpeaks, SCpeaks] = eventAvg(ACsignal, ICsignal, VCsignal, SCsignal)
 save([dname  name '_corrdfof'], 'corrmat','corrx','lag','ICsignal','ACsignal','VCsignal','SCsignal',...
     'ICpeaks', 'ACpeaks', 'VCpeaks', 'SCpeaks');
-%%alternative VC
-corrmat = corr(SCsignal', reX');
-corrmat = reshape(corrmat,m,n);
-figure; imagesc(corrmat);
-%save([dname  name '_corrTestL'], 'corrmat');
 
-indices = find(corrmat > 0.8);
-indices = indices(indices > 40000);
-VCsignal = zeros(1,t);
-for i=1:t
-    Xw = X(:,:,i);
-    ACsignal(i) = squeeze(mean(Xw(indices)));
-end
 
 %% plot all the plots
 [fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
@@ -159,22 +147,3 @@ set(gcf, 'Renderer', 'Painters');
 % box off; axis off;
 % colormap(gfb);
 % caxis([0.02 .14]);
-%% Get all the averages
-[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
-cd(dname);
-list = dir('*_corrdfof.mat');
-m = size(list,1);
-corrx_tot =[];
-corr_brain = [];
-lag_tot = [];
-figure;
-for i=1:m
-    load(list(i).name);
-    ACavg(:,i) = mean(ACpeaks,2);
-    VCavg(:,i) = mean(VCpeaks,2);
-    ICavg(:,i) = mean(ICpeaks,2);
-    SCavg(:,i) = mean(SCpeaks,2);
-end
-
-figure; plot(mean(ICavg,2)); hold on; plot(mean(ACavg,2)); 
-plot(mean(VCavg,2)); plot(mean(SCavg,2)); 
