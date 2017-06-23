@@ -15,17 +15,22 @@ function [ICpeaks, ACpeaks, VCpeaks, SCpeaks] = eventAvg(ACsignal, ICsignal, VCs
   VCpeaks = [];
   SCpeaks = [];
   
+  j = 1;
   for i=1:locn
       loc = locs(i);
+
       if loc < win_before || loc + win_after > t
       %elseif smVC(i) > smAC(i)
-      else
+      %elseif (ICsignalVar(loc) > (varmean-0.7*varstd)) && (ICsignalVar(loc) < (varmean+0.7*varstd))
+      elseif ACsignal(loc) > VCsignal(loc)
           rloc = loc - win_before;
           lloc = loc + win_after;
-          ICpeaks(:,i) = smIC(rloc:lloc);
-          ACpeaks(:,i) = smAC(rloc:lloc);
-          VCpeaks(:,i) = smVC(rloc:lloc);
-          SCpeaks(:,i) = smSC(rloc:lloc);
+          ICpeaks(:,j) = smIC(rloc:lloc);
+          ACpeaks(:,j) = smAC(rloc:lloc);
+          VCpeaks(:,j) = smVC(rloc:lloc);
+          SCpeaks(:,j) = smSC(rloc:lloc);
+          j = j+1;
+      else
       end 
       
   end

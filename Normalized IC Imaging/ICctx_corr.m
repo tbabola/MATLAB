@@ -1,10 +1,10 @@
 %% load image
- [fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
- [pathstr, name, ext] = fileparts([dname fname]);
+[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
+[pathstr, name, ext] = fileparts([dname fname]);
  X = loadTif([dname fname],16);
-%X = bleachCorrect(X,10);
-X = normalizeImg(X,10,1);
-[m,n,t] = size(X);
+ X = bleachCorrect(X,10);
+ X = normalizeImg(X,10,1);
+ [m,n,t] = size(X);
 
 X = flipud(X);
 figure;
@@ -58,21 +58,28 @@ lag = lag/10; %converts to seconds
 figure; plot(lag, corrx,'o'); xlim([-.5 .2])
 
 [ICpeaks, ACpeaks, VCpeaks, SCpeaks] = eventAvg(ACsignal, ICsignal, VCsignal, SCsignal)
+corrmat = corr(SCsignal', reX');
+ corrmat = reshape(corrmat,m,n);
+ figure; imagesc(corrmat);
 save([dname  name '_corrdfof'], 'corrmat','corrx','lag','ICsignal','ACsignal','VCsignal','SCsignal',...
     'ICpeaks', 'ACpeaks', 'VCpeaks', 'SCpeaks');
 %%alternative VC
-corrmat = corr(SCsignal', reX');
-corrmat = reshape(corrmat,m,n);
-figure; imagesc(corrmat);
+
 %save([dname  name '_corrTestL'], 'corrmat');
 
-indices = find(corrmat > 0.8);
-indices = indices(indices > 40000);
-VCsignal = zeros(1,t);
-for i=1:t
-    Xw = X(:,:,i);
-    ACsignal(i) = squeeze(mean(Xw(indices)));
-end
+% indices = find(corrmat > 0.8);
+% indices = indices(indices > 40000);
+% VCsignal = zeros(1,t);
+% for i=1:t
+%     Xw = X(:,:,i);
+%     ACsignal(i) = squeeze(mean(Xw(indices)));
+% end
+
+%double check on the signals and make sure they are bands of activity
+%(manually to save automated scripting)
+
+
+
 
 %% plot all the plots
 [fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
@@ -175,6 +182,43 @@ for i=1:m
     ICavg(:,i) = mean(ICpeaks,2);
     SCavg(:,i) = mean(SCpeaks,2);
 end
+ICnorm = (mean(ICavg,2)-min(ICavg,2))/max(mean(ICavg,2)-min(ICavg,2));
+ACnorm = (mean(ACavg,2)-min(ACavg,2))/max(mean(ACavg,2)-min(ACavg,2));
+VCnorm = (mean(VCavg,2)-min(VCavg,2))/max(mean(VCavg,2)-min(VCavg,2));
+SCnorm = (mean(SCavg,2)-min(SCavg,2))/max(mean(SCavg,2)-min(SCavg,2));
 
-figure; plot(mean(ICavg,2)); hold on; plot(mean(ACavg,2)); 
-plot(mean(VCavg,2)); plot(mean(SCavg,2)); 
+figure; plot(ICnorm); hold on; plot(ACnorm); 
+plot(VCnorm); plot(SCnorm); 
+
+figure; plot(mean(ICavg,2)-mean(ICavg(1,:),2)); hold on; plot(mean(ACavg,2)-mean(ACavg(1,:),2)); 
+plot(mean(VCavg,2)-mean(VCavg(1,:),2)); plot(mean(SCavg,2)-mean(SCavg(1,:),2)); 
+
+%% rerun eventAvg with IC and SC switched
+%[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');% cd(dname);
+list = dir('*_corrdfof.mat');
+m = size(list,1);
+ ACavg(:,i) = [];
+    VCavg(:,i) = [];
+    ICavg(:,i) = [];
+    SCavg(:,i) = [];
+    
+figure;
+for i=1:m
+    load(list(i).name);
+    SCpeaks = []; ACpeaks=[]; VCpeaks=[]; ICpeaks=[];
+    [SCpeaks, ACpeaks, VCpeaks, ICpeaks] = eventAvg(ACsignal, SCsignal, VCsignal, ICsignal);
+    ACavg(:,i) = mean(ACpeaks,2);
+    VCavg(:,i) = mean(VCpeaks,2);
+    ICavg(:,i) = mean(ICpeaks,2);
+    SCavg(:,i) = mean(SCpeaks,2);
+end
+ICnorm = (mean(ICavg,2)-min(ICavg,2))/max(mean(ICavg,2)-min(ICavg,2));
+ACnorm = (mean(ACavg,2)-min(ACavg,2))/max(mean(ACavg,2)-min(ACavg,2));
+VCnorm = (mean(VCavg,2)-min(VCavg,2))/max(mean(VCavg,2)-min(VCavg,2));
+SCnorm = (mean(SCavg,2)-min(SCavg,2))/max(mean(SCavg,2)-min(SCavg,2));
+
+%figure; plot(ICnorm); hold on; plot(ACnorm); 
+%plot(VCnorm); plot(SCnorm); 
+
+figure; plot(mean(ICavg,2)-mean(ICavg(1,:),2)); hold on; plot(mean(ACavg,2)-mean(ACavg(1,:),2)); 
+plot(mean(VCavg,2)-mean(VCavg(1,:),2)); plot(mean(SCavg,2)-mean(SCavg(1,:),2));

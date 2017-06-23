@@ -1,5 +1,5 @@
 %% load image
-%[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
+[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
 X = loadTif([dname fname],16);
 [m,n,t] = size(X);
 
