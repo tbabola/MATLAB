@@ -1,4 +1,4 @@
-function waveform(paths)
+function [avgWave, stErr] = waveform(paths)
     m = size(paths,1);
     
     win_before = 20;
@@ -38,6 +38,7 @@ function waveform(paths)
        
         LICavgTraces(:,i) = mean(LIC_trace,2);
         RICavgTraces(:,i) = mean(RIC_trace,2);
+        totavgTraces(:,i) = mean([LIC_trace RIC_trace],2);
         
     end
     
@@ -46,10 +47,34 @@ function waveform(paths)
     dk_org = [255, 120, 0]/255;
     lt_blue = [50, 175, 242]/255;
     dk_blue = [0, 13, 242]/255;
-    f = figure; 
-    set(f,'renderer','painters');
-    shadedErrorBar(time, mean(LICavgTraces,2)-mean(LICavgTraces(1,:),2), std(LICavgTraces,1,2)/sqrt(i),{'-','color',dk_org}); hold on;
-    shadedErrorBar(time, mean(RICavgTraces,2)-mean(RICavgTraces(1,:),2), std(RICavgTraces,1,2)/sqrt(i),{'-','color',dk_blue});
+    
+    
+    if m == 1
+            totTraces = [LIC_trace, RIC_trace];
+            f = figure; 
+            set(f,'renderer','painters');
+            shadedErrorBar(time, mean(totTraces,2)-mean(totTraces(1,:),2), std(totTraces,1,2)/sqrt(size(totTraces,2)),{'-','color','r'});
+            xlim([0 6.5]);
+            ylim([-0.01 .15]);
+            avgWave = mean(totTraces,2)-mean(totTraces(1,:),2);
+            stErr = std(totTraces,1,2)/sqrt(i);
+    else
+        f = figure; 
+        set(f,'renderer','painters');
+        shadedErrorBar(time, mean(LICavgTraces,2)-mean(LICavgTraces(1,:),2), std(LICavgTraces,1,2)/sqrt(i),{'-','color',dk_org}); hold on;
+        shadedErrorBar(time, mean(RICavgTraces,2)-mean(RICavgTraces(1,:),2), std(RICavgTraces,1,2)/sqrt(i),{'-','color',dk_blue});
+        xlim([0 6.5]);
+            ylim([-0.01 .15]);
+            
+         f = figure; 
+        set(f,'renderer','painters');
+        shadedErrorBar(time, mean(totavgTraces,2)-mean(totavgTraces(1,:),2), std(totavgTraces,1,2)/sqrt(i),{'-'});
+        avgWave = mean(totavgTraces,2)-mean(totavgTraces(1,:),2);
+        stErr = std(totavgTraces,1,2)/sqrt(i);
+        xlim([0 6.5]);
+            ylim([-0.01 .15]);
+    end
+    
     
     
     %plot(mean(LICavgTraces,2)-mean(LICavgTraces(1,:),2)); hold on; plot(mean(RICavgTraces,2)-mean(RICavgTraces(1,:),2));

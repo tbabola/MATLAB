@@ -10,9 +10,7 @@ function [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,analysisName,plotFl
     LIC = smooth(ICsignal(:,1));
     RIC = smooth(ICsignal(:,2));
     ctx = smooth(ICsignal(:,3));
-    LIC = msbackadj(time,LIC,'WindowSize',500,'StepSize',500);
-    RIC = msbackadj(time,RIC,'WindowSize',500,'StepSize',500);
-    ctx = msbackadj(time,ctx,'WindowSize',500,'StepSize',500);
+    LIC = msbackadj(time,LIC,'WindowSize',200
     
     %parameters
     pkThreshold = .01;
