@@ -1,9 +1,9 @@
 % load file
 %  
-% [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
-%  X = loadTif([dname fn],16);
-%  [m,n,t] = size(X);
-%  [dFoF, Fo] = normalizeImg(X, 10, 1);
+ %[fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+ %X = loadTif([dname fn],16);
+ %[m,n,t] = size(X);
+ %[dFoF, Fo] = normalizeImg(X, 10, 0);
 % % %  
  [LICmov, RICmov] = ROIselection(dFoF);
  meanLIC = squeeze(mean(LICmov,1));
@@ -12,13 +12,16 @@
  percentRIC = prctile(meanRIC,30,2);
 
 % %%remove background transients from signal
-top = dFoF(1:20,:,:); %picks area at top of image
+top = dFoF(5:20,10:500,:); %picks area at top of image, middle to account for registration
 top = squeeze(mean(mean(top),2));
-mid = dFoF(60:80,:,:);
+mid = dFoF(60:80,10:500,:);
 mid = squeeze(mean(mean(mid),2));
 diff = top - mid;
-diff(diff < 0) = 0;
+diff(diff < -0) = 0;
 [pks,locs,w]=findpeaks(double(diff),'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
+figure;
+findpeaks(double(diff),'MinPeakHeight',0.02,'WidthReference','halfprom','MinPeakWidth',7,'Annotate','extents');
+
 
 
 flash = zeros(size(top));
@@ -52,12 +55,12 @@ smRIC = double(imgaussfilt(meanRIC,3));
 
 %%
 %LIC & RIC
-[peaksBinaryL] = getPeaks_dFoF(smLIC,0,0.01);
-[peaksBinaryR] = getPeaks_dFoF(smRIC,1,0.01);
+[peaksBinaryL] = getPeaks_dFoF(smLIC,0,0.02);
+[peaksBinaryR] = getPeaks_dFoF(smRIC,1,0.02);
 
 [peakStat, eventStats] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
 plotTimeSeries_dFoF(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
- 
+  
 savefile = 'ICmovs_peaks_dFoF_remflash.mat';
 save([dname savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
 save([dname 'Fo.mat'],'Fo');
