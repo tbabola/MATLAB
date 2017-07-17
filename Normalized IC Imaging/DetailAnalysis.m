@@ -1,9 +1,9 @@
 % load file
 %  
- %[fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
- %X = loadTif([dname fn],16);
- %[m,n,t] = size(X);
- %[dFoF, Fo] = normalizeImg(X, 10, 0);
+ [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+ X = loadTif([dname fn],16);
+ [m,n,t] = size(X);
+ [dFoF, Fo] = normalizeImg(X, 10, 0);
 % % %  
  [LICmov, RICmov] = ROIselection(dFoF);
  meanLIC = squeeze(mean(LICmov,1));

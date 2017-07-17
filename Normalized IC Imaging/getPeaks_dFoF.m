@@ -85,7 +85,8 @@ function peaks = clearNonprominentEvents(peaks, signal, prominenceCutoff)
     %space
     spaceEvents = zeros(size(signal));
     for i = 1:size(indices,1)
-        [pks, locs] = findpeaks(signal(:,indices(i)),'MinPeakProminence',prominenceCutoff);
+        %[pks, locs] = findpeaks(signal(:,indices(i)),'MinPeakProminence',prominenceCutoff);
+        [pks, locs] = findpeaks(signal(:,indices(i)),'MinPeakProminence',prominenceCutoff-.01);
          spaceEvents(locs,indices(i))=1;
     end
     

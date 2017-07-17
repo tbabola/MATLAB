@@ -82,7 +82,7 @@ save([dname  name '_corrdfof'], 'corrmat','corrx','lag','ICsignal','ACsignal','V
 
 
 %% plot all the plots
-[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
+%[fname, dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif','Multiselect','on');
 cd(dname);
 list = dir('*_corr.mat');
 m = size(list,1);
@@ -99,11 +99,16 @@ for i=1:m
     size(ICsignal)
     ICsignal = ICsignal(:,1:5997);
     ACsignal =  ACsignal(:,1:5997);
-    VCsignal =  VCsignal(:,1:5997);
+    if exist('VCsignal')
+        VCsignal =  VCsignal(:,1:5997);
+    else
+        VCsignal = V1signal(:,1:5997);
+    end
     ICsignalMean = mean(ICsignal);
     ACsignalMean = mean(ACsignal);
     
     [corrx, lag] = xcorr(ICsignal-ICsignalMean, ACsignal-ACsignalMean,'coeff');
+    %[corrx, lag] = xcorr(ICsignal-ICsignalMean, ACsignal-ACsignalMean,'unbiased');
     corrx_tot(i,:) = corrx;
     lag_tot(i,:) = lag/10;
     mean_corrx = mean(corrx_tot);
