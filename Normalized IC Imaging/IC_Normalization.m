@@ -4,7 +4,7 @@ X = loadTif([dname fname],16);
 [m,n,t] = size(X);
 
 %% get 10th percentiles
- [dFoF, Fo, img] = normalizeImg(X, 20, 1);
+ [dFoF, Fo, img] = normalizeImg(X, 10, 1);
  %get Fo and display it
 
 %% Fav - Fo ./Fo

@@ -16,6 +16,7 @@ function [dFoF, Fo, img] = normalizeImg(img, percentile, bleachCorrectFlag)
     Xreshape = reshape(img,m*n,T)';
     Fo = prctile(Xreshape,percentile,1);
     Fo = reshape(Fo',m,n);
+    
 
     dFoF = (single(img) - single(Fo)) ./ single(Fo);
     %dFoF = double(img - Fo) ./ double(Fo);

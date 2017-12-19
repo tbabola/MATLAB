@@ -7,7 +7,7 @@ function img = loadTif(fname,bits)
         case 8
             bitstr = 'uint8';
         case 16
-            bitstr = 'int16';
+            bitstr = 'uint16';
         case 32
             bitstr = 'single';
         otherwise

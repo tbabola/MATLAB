@@ -117,8 +117,7 @@ function [pkData] = ICcompare2(LIC, RIC, master_pks,master_locs,pks,locs)
               temp_pkdata = [unmatchedLocs(i) LIC(unmatchedLocs(i)) unmatchedLocs(i) unmatchedPks(i) abs(unmatchedPks(i)-LIC(unmatchedLocs(i))) 3];
               pkData = [pkData; temp_pkdata];
               loc_under = 0;
-          end
-          
+          end          
           if pkData(j, 3) < unmatchedLocs(i)
               j = j + 1;
           else
@@ -294,25 +293,28 @@ function graphEvents(pkData, filePath)
         binY = [0 .0450:.05:.35];
         
         figh = figure;
-            h=barh(binY,Rcounts,.9);
+            h=barh(binY(2:end),Rcounts(2:end),.9);
             hold on;
-            barh(binY,-Lcounts,.9,'FaceColor',lt_org,'EdgeColor','none');
+            barh(binY(2:end),-Lcounts(2:end),.9,'FaceColor',lt_org,'EdgeColor','none');
+             line([0 0],[0 0.4],'LineWidth',0.75,'Color',[0.6 0.6 0.6]);
             %barh(Lbins,-Lcounts,.9,'FaceColor',lt_org,'EdgeColor',lt_org);
             h.FaceColor = lt_blue;
             h.EdgeColor = 'none';
-            xlim([-60 60]);
-            %xlim([-50 50]);
-            %xticks([-50 -25 0 25 50]);
-            xticks([-60 -30 0 30 60]);
-            xticklabels({'60' '30' '0' '30' '60'});
-            ylim([0 .4]);
-            yticks([0 .20 .4]);
+           
+           xax_lim = [-60 60];
+            xtick = [-60 -30 0 30 60];
+            xticklabel = {'60' '30' '0' '30' '60'};
+             xlim(xax_lim);
+            xticks(xtick);
+            xticklabels(xticklabel);
+            ylim([0 .40]);
+            yticks([0 .2 .4]);
+            yticklabels({'0' '20' '40'});
             box off;
-            figh.Units = 'inches';
-            figh.Position = [5 5 1.5 1.0];
-            set(gca,'FontSize',6);
             xlabel('# of Dominant Events','FontSize',8);
-            ylabel('Amplitude (\DeltaF/F)','FontSize',8);
+            ylabel('\DeltaF/F (%)','FontSize',8);
+            axh = gca;
+            figQuality(figh,axh,[1.8 1.2]);
         
 end
 

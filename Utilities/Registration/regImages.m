@@ -21,7 +21,7 @@ if ~just_shift
         % alternative image registration code at bottom of file
         shiftR(i,:) = y1(1,[4 3]);
     end
-     shiftR(abs(shiftR)<1) = 0; % ignore small shifts
+     shiftR(abs(shiftR)<3) = 0; % ignore small shifts
 end
 
 for i = 1:T

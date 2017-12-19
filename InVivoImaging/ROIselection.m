@@ -11,7 +11,7 @@ function [LICmov, RICmov] = ROIselection(movie)
     lim = median(lim(:),'omitnan') * 2;
     imagesc(meanRIC);
     caxis([0 lim]);
-    RIC = imrect(gca,[0,0,125,100]);
+    RIC = imrect(gca,[0,0,125,50]);
     setResizable(RIC,0);
     wait(RIC);
     pos = getPosition(RIC);
@@ -22,7 +22,7 @@ function [LICmov, RICmov] = ROIselection(movie)
     CW = figure;
     imagesc(meanLIC);
     caxis([0 lim]);
-    LIC = imrect(gca,[0,0,125,100]);
+    LIC = imrect(gca,[0,0,125,50]);
     setResizable(LIC,0);
     wait(LIC);
     pos = getPosition(LIC);

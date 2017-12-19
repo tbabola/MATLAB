@@ -332,7 +332,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.15 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smLIC');
-    caxis([0 0.3]);
+    caxis([0 0.8]);
     xlim([0 125]);
     ylim([000 6000]);
     hold on; 
@@ -345,7 +345,7 @@ function plotTimeSeriesL(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat, eve
     pv = [.58 .3 .4 .65];
     subplot('Position',pv);
     imagesc(smRIC');
-    caxis([0 0.3]);
+    caxis([0 0.8]);
     xlim([0 125]);
     ylim([0000 6000]);
     hold on; 

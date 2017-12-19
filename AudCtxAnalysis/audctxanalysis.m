@@ -1,25 +1,25 @@
 %load raw data files, convert to tif, and save
-[fn dname] = uigetfile();
-cd(dname);
-%  list = dir('*.czi');
-%  [m,n] = size(list);
-%  
-%  for i = 1:m
-%      img = bfLoadTif(list(i).name);
-%      [pathStr, name, ext] = fileparts(list(i).name);
-%      writeTif(img, [pathStr name '.tif'],16);
-%  end
-%  
+%[fn dname] = uigetfile();
+ cd(dname);
+ list = dir('*.czi');
+[m,n] = size(list);
+ 
+ for i = 1:m
+     img = bfLoadTif(list(i).name);
+     [pathStr, name, ext] = fileparts(list(i).name);
+     writeTif(img, [pathStr name '.tif'],16);
+ end
+ 
 %load Tifs and Analyze
 list = dir('*.tif');
 
 m = size(list,1);
-starttone = 50; %frames
+starttone = 57; %frames
 toneISI = 50; %frames
 before = 10;
 after = 30;
 
-toneImgs = {};
+toneImg = {};
 for i = 1:m
     img = loadTif(list(i).name,16);
     for j = 1:16
@@ -89,7 +89,7 @@ toneISI = 50; %frames
 before = 10;
 after = 30;
 
-toneImgs = {};
+toneImg = {};
 for i = 1:m
     img = loadTif(list(i).name,16);
     for j = 1:16

@@ -1,5 +1,5 @@
-function [img] = loadTifDir(dname)
-    list = dir([dname '\*.tif'])
+function [img] = loadTifDir(dname, search)
+    list = dir([dname '\' search '*.tif'])
     list = struct2cell(list);
     list = list(1,:)';
     

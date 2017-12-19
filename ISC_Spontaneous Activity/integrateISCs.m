@@ -7,5 +7,3 @@ function [d_int,time_int] = integrateISCs(d,time)
    time_int = time(~mod(time,1));
    plot(time_int,d_int);
 end
-
-in

@@ -3,8 +3,10 @@ function writeTif(img, fname, bits)
     if ~exist('bits','var')
         bits = 8;
         tagstruct.SampleFormat = Tiff.SampleFormat.Int;
-    elseif bits == 16
+    elseif bits == 16 && isa(img,'int16');
         tagstruct.SampleFormat = Tiff.SampleFormat.Int;
+    elseif bits == 16 && isa(img,'uint16');
+        tagstruct.SampleFormat = Tiff.SampleFormat.UInt;
     elseif bits == 32
         tagstruct.SampleFormat = Tiff.SampleFormat.IEEEFP;
     end
