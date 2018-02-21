@@ -1,14 +1,20 @@
 [fname, dname] = uigetfile('*.tif','Multiselect','on');
 
 for i=1:length(fname)
-    
+
 %% load data (provide filename fn and correct directory name dname)
 cd(dname);
-loadPath = strcat(dname, fname{i});
-fn = fname{i};
+%loadPath = strcat(dname, fname{i});
+loadPath = strcat(dname, fname);
+%fn = fname{i};
+fn = fname;
 
 %% load movie
 X = loadTif(loadPath,16);
+X = imresize(X, 0.5);
+
+[dFoF,Fo, X] = normalizeImg(X,10,1);
+
 [m,n,T] = size(X);
 t = (1:T)/10; % frame rate of 10 fps
 X = double(X);

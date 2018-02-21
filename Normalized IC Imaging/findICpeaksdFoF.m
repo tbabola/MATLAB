@@ -70,12 +70,17 @@ function [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,analysisName,plotFl
     meanR = mean(pkData(:,4));
     meanL = mean(pkData(:,2));
     width = mean([RICinfo(:,3); LICinfo(:,3)],1)
+    %calculate event ratios
+    tempPkData = pkData(pkData(:,7)==1,:)
+    ratio = tempPkData(:,4)./tempPkData(:,2);
+    tempPkData = pkData(pkData(:,7)==2,:);
+    ratio = [ratio; tempPkData(:,2)./tempPkData(:,4)];
     
     disp(['LIC: ',num2str(totLpks),' peaks total, ',num2str(totMatchedPks),' corresponding RIC peaks.']);
     disp(['RIC: ',num2str(totRpks),' peaks total, ',num2str(totMatchedPks),' corresponding LIC peaks.']);
     disp(['Mean RIC amplitude: ', num2str(meanR)]);
     disp(['Mean LIC amplitude: ', num2str(meanL)]);
-    stats = table(totLpks, totRpks, totMatchedPks, meanL, meanR, Ldom/totPks, totLpks+totRpks-totMatchedPks, Ldom, Rdom, width);
+    stats = table(totLpks, totRpks, totMatchedPks, meanL, meanR, Ldom/totPks, totLpks+totRpks-totMatchedPks, Ldom, Rdom, width, mean(ratio));
     assignin('base','stats1',stats);
     save([filePath,['\ICinfo16_',analysisName]],'LICinfo','RICinfo','ICsignal','filePath','stats','pkData');
     disp([filePath,['\ICinfo16_',analysisName]]);

@@ -171,6 +171,7 @@
 
 %% new SGN analysis
 dname = 'M:\Bergles Lab Data\Projects\In Vivo Imaging and VG3 Paper\In Vitro Experiments\';
+dname = 'M:\Bergles Lab Data\Papers\';
 [fn dname] = uigetfile(dname);
 
 %ask for WT or VG3
@@ -185,8 +186,12 @@ while ~correctExp
         correctExp = 1;
         stdStart =1200; %measurement period for standard deviation
         stdEnd = 1300;
+    elseif strcmp(condition,'TMIEKO')
+        correctExp = 1;
+        stdStart =2000; %measurement period for standard deviation
+        stdEnd = 2100;
     else
-        disp('Please enter WT or VG3KO. ');
+        disp('Please enter WT or VG3KO or TMIEKO. ');
     end
 end
 
@@ -200,17 +205,12 @@ SGNdFoF = (SGNs - Fo)./(repmat(Fo,m,1));
 
 %setup parameters
 measureStart = 1;
-measureEnd = 600;
+measureEnd = 1200;
 means = mean(SGNdFoF(stdStart:stdEnd,:)); %means for all SGNs
-stds = std(SGNdFoF(stdStart:stdEnd,:),1,1); %stds for all SGNs
+stds = std(SGNdFoF,[],1); %stds for all SGNs
 thr = 3 * stds; %threshold for all SGNs
 
-%plot of cells
-figure(4);
-scale = max(max(SGNs,[],1))/4;
-for i = 1:n
-    plot(SGNs(:,i)+(i-1)*scale,'k'); hold on;
-end
+
 
 eventStruct = struct();
 eventStruct.condition = condition; eventStruct.numCells = size(SGNs,2);
@@ -230,6 +230,17 @@ for i=1:n
         eventStruct.SGN(i).keepTrace = 0;
     else
         eventStruct.SGN(i).keepTrace = 1;
+    end
+    eventStruct.SGN(i).keepTrace = 1;
+end
+%plot of cells
+figure(4);
+scale = max(max(SGNs,[],1))/4;
+j=1;
+for i = 1:n
+    if eventStruct.SGN(i).keepTrace
+        plot(SGNs(:,i)+(j-1)*scale,'k'); hold on;
+        j = j +1;
     end
 end
 
@@ -254,23 +265,23 @@ for i=1:n
         eventStruct.SGN(i).keepEvents = ones(size(w));
         %figure(6); plot(workingTrace);
         indices = find(w > 20);
-        if ~isempty(indices)
-            for j = 1:size(indices,1)
-                indices(j)
-                xlim([locs(indices(j))-200 locs(indices(j))+200]);
-                if ~input('Keep?')
-                  eventStruct.SGN(i).keepEvents(indices(j))= 0;
-                else
-                  if ~input('Keep Peak Location?')
-                      newPeakLoc = input('New Peak Location: ');
-                      if isnumeric(newPeakLoc)
-                          i
-                          eventStruct.SGN(i).altPeaks(indices(j)) = newPeakLoc;
-                      end
-                  end
-                end
-            end
-        end
+%         if ~isempty(indices)
+%             for j = 1:size(indices,1)
+%                 indices(j)
+%                 xlim([locs(indices(j))-200 locs(indices(j))+200]);
+%                 if ~input('Keep?')
+%                   eventStruct.SGN(i).keepEvents(indices(j))= 0;
+%                 else
+%                   if ~input('Keep Peak Location?')
+%                       newPeakLoc = input('New Peak Location: ');
+%                       if isnumeric(newPeakLoc)
+%                           i
+%                           eventStruct.SGN(i).altPeaks(indices(j)) = newPeakLoc;
+%                       end
+%                   end
+%                 end
+%             end
+%         end
         
         %extract events
         indices = find(eventStruct.SGN(i).keepEvents);
@@ -284,19 +295,21 @@ for i=1:n
             
             eventStruct.SGN(i).events = events;
             eventStruct.SGN(i).avgEvent = mean(events,1);
+         
             avgEvent(i,:) = eventStruct.SGN(i).avgEvent;
             totalWidths = [totalWidths;  eventStruct.SGN(i).widths(indices)];
         end
     else
         %even
     end
-    
+    eventStruct.SGN(i).dFoF = SGNdFoF(:,i);
+    eventStruct.SGN(i).rawData = SGNs(:,i);
 end
 
 eventStruct.avgEvent = mean(avgEvent,1);
 eventStruct.groupWidths = totalWidths;
 eventStruct.timeAnalyzed = datetime('now');
-save([dname '\SGNEventsV2.mat'],'eventStruct');
+save([dname '\SGNEventsV3.mat'],'eventStruct');
 
 
 %% Correlation analysis

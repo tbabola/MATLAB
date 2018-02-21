@@ -6,12 +6,12 @@ function [LICmask, RICmask, ctxmask] = getROImasks(X)
     %h.Position([50 50 800 600]);
     h_im = imagesc(Xmean);
      
-    LIC = imellipse(gca,[60,35,175,100]);
+    LIC = imellipse(gca,[60,35,150,85]);
     setResizable(LIC,0);
     wait(LIC);
     LICmask = createMask(LIC, h_im);
     
-    RIC = imellipse(gca,[300,35,175,100]);
+    RIC = imellipse(gca,[300,35,150,85]);
     setResizable(RIC,0);
     wait(RIC);
     RICmask = createMask(RIC, h_im);

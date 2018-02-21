@@ -1,9 +1,9 @@
 % load file
 %% 
-%   [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
-%    X = loadTif([dname fn],16);
-%    [m,n,t] = size(X);
-%    [dFoF, Fo] = normalizeImg(X, 10, 0);
+%    [fn dname] = uigetfile('M:\Bergles Lab Data\Projects\In vivo imaging\*.tif');
+%     X = loadTif([dname fn],16);
+%      [m,n,t] = size(X);
+%      [dFoF, Fo] = normalizeImg(X, 10, 0);
 %% 
  [LICmov, RICmov] = ROIselection(dFoF);
  meanLIC = squeeze(mean(LICmov,1));
@@ -61,6 +61,6 @@ smRIC = double(imgaussfilt(meanRIC,3));
 [peakStat, eventStats] = peakStats_dFoF(smLIC, peaksBinaryL, smRIC, peaksBinaryR);
 plotTimeSeries_dFoF(smLIC, smRIC, peaksBinaryL, peaksBinaryR, peakStat);
   
-savefile = 'ICmovs_peaks_dFoF_remflash01.mat';
+savefile = 'ICmovs_peaks_dFoF_remflash.mat';
 save([dname savefile],'smLIC','smRIC','peaksBinaryR','peaksBinaryL'); 
 save([dname 'Fo01.mat'],'Fo');

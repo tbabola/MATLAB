@@ -8,6 +8,7 @@ function figQuality(figh, axh, dim)
     figh.Color = [1 1 1];
     figh.PaperPositionMode = 'auto'; 
     box off;
+    set(axh,'LooseInset',get(axh,'TightInset')) 
     
     allAxesInFigure = findall(figh,'type','axes');
     for i=1:size(allAxesInFigure,1)

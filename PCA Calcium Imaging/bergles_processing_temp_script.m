@@ -1,4 +1,4 @@
-%% load data (provide filename fn and correct directory name dname)
+% %% load data (provide filename fn and correct directory name dname)
 %dname = 'C:\Users\User\Downloads\';
 o_dir =  pwd;
 %cd 'C:\Users\Bergles Lab\Desktop';
@@ -9,6 +9,8 @@ fname = [dname fn];
 
 %% load movie
 X = loadTif(fname,16);
+[dFoF,Fo, X] = normalizeImg(X,10,1);
+X = X(:,:,9:end);
 [m,n,T] = size(X);
 t = (1:T)/10; % frame rate of 10 fps
 X = double(X);

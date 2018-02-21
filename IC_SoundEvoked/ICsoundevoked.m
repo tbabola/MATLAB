@@ -22,7 +22,7 @@ before = 10; %frames before tone to analyze
 
 for i = 1:params.repeats
     for j = 1:params.numFreqs
-       startImg = offset + starttone + timeBetweenStart*(j-1) + params.numFreqs * timeBetweenStart * (i-1) - before;
+       startImg = offset + starttone + timeBetweenStart*(j-1) + params.numFreqs * timeBetweenStart * (i-1) - before
        endImg = startImg + timeBetweenStart + before;
        toneImg{i,j} = img(:,:,startImg:endImg);
     end

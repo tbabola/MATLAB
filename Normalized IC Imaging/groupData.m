@@ -18,7 +18,7 @@ function [stat] = groupData(paths,bits)
          if bits == 8
              [stats, pkData] = findICpeaks(ICsignal,[filePath '\'],'PCA',1);
          elseif bits == 16
-             [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,'dFoF',0);
+             [stats, pkData] = findICpeaksdFoF(ICsignal,filePath,'dFoF',1);
          end
          stat = [stat; stats];
          rpks_temp = pkData((pkData(:,7)==2),4);
